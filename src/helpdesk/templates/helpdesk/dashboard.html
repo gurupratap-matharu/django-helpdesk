@@ -1,36 +1,133 @@
-{% extends "helpdesk/base.html" %}{% load i18n %}
-{% block helpdesk_title %}{% trans "Helpdesk Dashboard" %}{% endblock %}
+{% extends "helpdesk/base.html" %}
+
+{% load i18n %}
+
+{% block helpdesk_title %}
+  {% translate "Helpdesk Dashboard" %}
+{% endblock helpdesk_title %}
+
 {% block helpdesk_breadcrumb %}
-<li class="breadcrumb-item">
+  <li class="breadcrumb-item">
+    <a href="/"><i class="fa-solid fa-house small"></i></a>
+  </li>
+  <li class="breadcrumb-item">
     <a href="#">Dashboard</a>
-</li>
-<li class="breadcrumb-item active">{% trans "Overview" %}</li>
-{% endblock %}
+  </li>
+  <li class="breadcrumb-item active">{% translate "Overview" %}</li>
+{% endblock helpdesk_breadcrumb %}
+
 {% block helpdesk_body %}
-<div class="row">
-    <div class="col-sm-8">
-        {% include 'helpdesk/include/stats.html' %}
+  {# Top KPI stats #}
+  <div class="row row-cols-1 row-cols-lg-4 g-3 mb-3 mx-2">
+    <div class="col">
+      <div class="card card-body h-100">
+        <h5>{% translate "Welcome Back!" %}</h5>
+        <small class="text-body-secondary">
+          {% translate "From here you can quickly see tickets submitted by you, tickets you are working on, and those tickets that have no owner." %}
+        </small>
+      </div>
     </div>
-    <div class="col-sm-4">
-        <div class="alert alert-warning">
-            <p>{% trans "Welcome to your Helpdesk Dashboard! From here you can quickly see tickets submitted by you, tickets you are working on, and those tickets that have no owner." %}</p>
+    {% for entry in basic_ticket_stats.open_ticket_stats %}
+      <div class="col">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="card-body-icon">
+              <i class="fas fa-fw fa-list"></i>
+            </div>
+            <small class="text-body-secondary text-uppercase">{{ entry.0 }}</small>
+            <p class="fs-1 mb-0">{{ entry.1 }}</p>
+          </div>
+          <div class="card-footer bg-transparent border-0">
+            {% if entry.1 > 0 %}
+              <a href="{% url 'helpdesk:list' %}?{{ entry.3 }}">{% translate "View" %}
+                <i class="fas fa-chevron-right small"></i>
+              </a>
+            {% else %}
+              <small class="text-body-secondary">{% translate "No tickets in this range" %}</small>
+            {% endif %}
+          </div>
         </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  {# User stats #}
+  <div class="row row-cols-1 row-cols-lg-4 g-3 mb-3 mx-2">
+    <div class="col">
+      <div class="card">
+        <div class="card-body d-flex align-items-center">
+          <div class="bg-primary-subtle text-primary-emphasis rounded-2 px-3 py-2">
+            <i class="fas fa-headset fs-4"></i>
+          </div>
+          <div class="ms-3">
+            <span class="d-block">{{ user_tickets|length }}</span>
+            <span class="text-secondary">{% translate "Work in progress" %}</span>
+          </div>
+        </div>
+      </div>
     </div>
-</div>
-{% if all_tickets_reported_by_current_user %}
-    {% trans "All Tickets submitted by you" as ticket_list_caption %}
-    {% trans "atrbcu_page" as page_var %}
-    {% include 'helpdesk/include/tickets.html' with ticket_list=all_tickets_reported_by_current_user ticket_list_empty_message="" page_var=page_var sort_param='atrbcu_sort' current_sort=all_tickets_reported_sort %}
-{% endif %}
-{% trans "Open Tickets assigned to you (you are working on this ticket)" as ticket_list_caption %}
-{% trans "You have no tickets assigned to you." as no_assigned_tickets %}
-{% trans "ut_page" as page_var %}
-{% include 'helpdesk/include/tickets.html' with ticket_list=user_tickets ticket_list_empty_message=no_assigned_tickets page_var=page_var sort_param='ut_sort' current_sort=user_tickets_sort %}
-{% trans "una_page" as page_var %}
-{% include 'helpdesk/include/unassigned.html' with page_var=page_var %}
-{% if user_tickets_closed_resolved %}
-    {% trans "Closed & resolved Tickets you used to work on" as ticket_list_caption %}
-    {% trans "utcr_page" as page_var %}
-    {% include 'helpdesk/include/tickets.html' with ticket_list=user_tickets_closed_resolved ticket_list_empty_message="" page_var=page_var sort_param='utcr_sort' current_sort=user_tickets_closed_sort %}
-{% endif %}
-{% endblock %}
+    <div class="col">
+      <div class="card">
+        <div class="card-body d-flex align-items-center">
+          <div class="bg-danger-subtle text-danger-emphasis rounded-2 px-3 py-2">
+            <i class="fas fa-fire fs-4"></i>
+          </div>
+          <div class="ms-3">
+            <span class="d-block">{{ unassigned_tickets|length }}</span>
+            <span class="text-secondary">{% translate "Open or Unassigned" %}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <div class="card-body d-flex align-items-center">
+          <div class="bg-warning-subtle text-warning-emphasis rounded-2 px-3 py-2">
+            <i class="fa-regular fa-pen-to-square fs-4"></i>
+          </div>
+          <div class="ms-3">
+            <span class="d-block">{{ all_tickets_reported_by_current_user|length }}</span>
+            <span class="text-secondary">{% translate "Created or opened by me" %}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <div class="card-body d-flex align-items-center">
+          <div class="bg-success-subtle text-success-emphasis rounded-2 px-3 py-2">
+            <i class="fa-regular fa-circle-check fs-4"></i>
+          </div>
+          <div class="ms-3">
+            <span class="d-block">{{ user_tickets_closed_resolved|length }}</span>
+            <span class="text-secondary">{% translate "Resolved or Closed" %}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# User created tickets table #}
+  {% if all_tickets_reported_by_current_user %}
+    {% translate "All Tickets submitted by you" as ticket_list_caption %}
+    {% translate "atrbcu_page" as page_var %}
+    {% include "helpdesk/include/tickets.html" with ticket_list=all_tickets_reported_by_current_user ticket_list_empty_message="" page_var=page_var sort_param="atrbcu_sort" current_sort=all_tickets_reported_sort %}
+  {% endif %}
+
+  {# User assigned tickets table #}
+  {% translate "Open Tickets assigned to you (you are working on this ticket)" as ticket_list_caption %}
+  {% translate "You have no tickets assigned to you." as no_assigned_tickets %}
+  {% translate "ut_page" as page_var %}
+  {% include "helpdesk/include/tickets.html" with ticket_list=user_tickets ticket_list_empty_message=no_assigned_tickets page_var=page_var sort_param="ut_sort" current_sort=user_tickets_sort %}
+
+  {# Unassigned tickets table #}
+  {% translate "una_page" as page_var %}
+  {% include "helpdesk/include/unassigned.html" with page_var=page_var %}
+
+  {# User closed tickets table #}
+  {% if user_tickets_closed_resolved %}
+    {% translate "Closed & resolved Tickets you used to work on" as ticket_list_caption %}
+    {% translate "utcr_page" as page_var %}
+    {% include "helpdesk/include/tickets.html" with ticket_list=user_tickets_closed_resolved ticket_list_empty_message="" page_var=page_var sort_param="utcr_sort" current_sort=user_tickets_closed_sort %}
+  {% endif %}
+{% endblock helpdesk_body %}
