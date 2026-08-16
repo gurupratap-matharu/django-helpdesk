@@ -22,7 +22,7 @@ from django.contrib.auth.views import redirect_to_login
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.core.handlers.wsgi import WSGIRequest
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.core.paginator import Paginator
 from django.db.models import Case, F, Q, When
 from django.forms import HiddenInput, TextInput, inlineformset_factory
 from django.http import (
@@ -155,159 +155,100 @@ def get_form_extra_kwargs(user) -> dict[str, object]:
     }
 
 
+@staff_member_required
 @helpdesk_staff_member_required
-def dashboard(request):
+def dashboard(request: HttpRequest) -> HttpResponse:
     """
     A quick summary overview for users: A list of their own tickets, a table
     showing ticket counts by queue/status, and a list of unassigned tickets
     with options for them to 'Take' ownership of said tickets.
     """
-    # user settings num tickets per page
-    if request.user.is_authenticated and hasattr(request.user, "usersettings_helpdesk"):
-        tickets_per_page = request.user.usersettings_helpdesk.tickets_per_page
-    else:
-        tickets_per_page = 25
+    paginate_by = getattr(request.user, "usersettings_helpdesk.tickets_per_page", 9)
+    get_param = lambda name, default: request.GET.get(name, default)
 
-    # page vars for the four ticket tables
-    user_tickets_page = request.GET.get(_("ut_page"), 1)
-    user_tickets_closed_resolved_page = request.GET.get(_("utcr_page"), 1)
-    all_tickets_reported_by_current_user_page = request.GET.get(_("atrbcu_page"), 1)
-    unassigned_tickets_page = request.GET.get(_("una_page"), 1)
+    def paginate(qs, page_num):
+        """Paginator for all tickets querysets (tables)."""
+        paginator = Paginator(qs, paginate_by)
+        return paginator.get_page(page_num)
 
     # sorting parameters for each table
-    user_tickets_sort = request.GET.get("ut_sort", "-created")
-    user_tickets_closed_sort = request.GET.get("utcr_sort", "-created")
-    all_tickets_reported_sort = request.GET.get("atrbcu_sort", "-created")
-    unassigned_tickets_sort = request.GET.get("una_sort", "-created")
+    user_tickets_sort = get_param("ut_sort", "-created")
+    user_tickets_closed_sort = get_param("utcr_sort", "-created")
+    all_tickets_reported_sort = get_param("atrbcu_sort", "-created")
+    unassigned_tickets_sort = get_param("una_sort", "-created")
 
     huser = HelpdeskUser(request.user)
-    active_tickets = Ticket.objects.select_related("queue").exclude(
-        status__in=[
-            Ticket.CLOSED_STATUS,
-            Ticket.RESOLVED_STATUS,
-            Ticket.DUPLICATE_STATUS,
-        ],
-    )
-
-    # open & reopened tickets, assigned to current user
-    tickets = active_tickets.filter(
-        assigned_to=request.user,
-    ).order_by(user_tickets_sort)
-
-    # closed & resolved tickets, assigned to current user
-    tickets_closed_resolved = (
-        Ticket.objects.select_related("queue")
-        .filter(
-            assigned_to=request.user,
-            status__in=[
-                Ticket.CLOSED_STATUS,
-                Ticket.RESOLVED_STATUS,
-                Ticket.DUPLICATE_STATUS,
-            ],
-        )
-        .order_by(user_tickets_closed_sort)
-    )
-
     user_queues = huser.get_queues()
 
+    CLOSED_RESOLVED_DUPLICATE = [
+        Ticket.CLOSED_STATUS,
+        Ticket.RESOLVED_STATUS,
+        Ticket.DUPLICATE_STATUS,
+    ]
+    qs = Ticket.objects.select_related("queue")
+    active_tickets = qs.exclude(status__in=CLOSED_RESOLVED_DUPLICATE)
+
+    # Open or reopened tickets assigned to current user
+    assigned_tickets = active_tickets.filter(assigned_to=request.user).order_by(
+        user_tickets_sort
+    )
+
+    # Open unassigned tickets which user can view
     unassigned_tickets = active_tickets.filter(
         assigned_to__isnull=True, queue__in=user_queues
     ).order_by(unassigned_tickets_sort)
+
+    # Closed or resolved tickets that were assigned to current user
+    closed_tickets = qs.filter(
+        assigned_to=request.user,
+        status__in=CLOSED_RESOLVED_DUPLICATE,
+    ).order_by(user_tickets_closed_sort)
+
+    # User created tickets
+    created_tickets = ""
+    email_current_user = request.user.email
+
+    if email_current_user:
+        created_tickets = qs.filter(
+            submitter_email=email_current_user,
+        ).order_by(all_tickets_reported_sort)
+
     kbitems = None
     # Teams mode uses assignment via knowledge base items so exclude tickets assigned to KB items
     if helpdesk_settings.HELPDESK_TEAMS_MODE_ENABLED:
         unassigned_tickets = unassigned_tickets.filter(kbitem__isnull=True)
         kbitems = huser.get_assigned_kb_items()
 
-    # all tickets, reported by current user
-    all_tickets_reported_by_current_user = ""
-    email_current_user = request.user.email
-    if email_current_user:
-        all_tickets_reported_by_current_user = (
-            Ticket.objects.select_related("queue")
-            .filter(
-                submitter_email=email_current_user,
-            )
-            .order_by(all_tickets_reported_sort)
-        )
-
-    tickets_in_queues = Ticket.objects.filter(
-        queue__in=user_queues,
-    )
+    # Generate KPI stats
+    tickets_in_queues = Ticket.objects.filter(queue__in=user_queues)
     basic_ticket_stats = calc_basic_ticket_stats(tickets_in_queues)
 
-    # The following query builds a grid of queues & ticket statuses,
-    # to be displayed to the user. EG:
-    #          Open  Resolved
-    # Queue 1    10     4
-    # Queue 2     4    12
-    # code never used (and prone to sql injections)
-    # queues = HelpdeskUser(request.user).get_queues().values_list('id', flat=True)
-    # from_clause = """FROM    helpdesk_ticket t,
-    #                 helpdesk_queue q"""
-    # if queues:
-    #     where_clause = """WHERE   q.id = t.queue_id AND
-    #                     q.id IN (%s)""" % (",".join(("%d" % pk for pk in queues)))
-    # else:
-    #     where_clause = """WHERE   q.id = t.queue_id"""
+    # page numbers for the four ticket tables
+    assigned_page_num = get_param(_("ut_page"), 1)
+    resolved_page_num = get_param(_("utcr_page"), 1)
+    created_page_num = get_param(_("atrbcu_page"), 1)
+    unassigned_page_num = get_param(_("una_page"), 1)
 
-    # get user assigned tickets page
-    paginator = Paginator(tickets, tickets_per_page)
-    try:
-        tickets = paginator.page(user_tickets_page)
-    except PageNotAnInteger:
-        tickets = paginator.page(1)
-    except EmptyPage:
-        tickets = paginator.page(paginator.num_pages)
+    # paginate the four ticket tables
+    assigned_tickets = paginate(assigned_tickets, assigned_page_num)
+    closed_tickets = paginate(closed_tickets, resolved_page_num)
+    created_tickets = paginate(created_tickets, created_page_num)
+    unassigned_tickets = paginate(unassigned_tickets, unassigned_page_num)
 
-    # get user completed tickets page
-    paginator = Paginator(tickets_closed_resolved, tickets_per_page)
-    try:
-        tickets_closed_resolved = paginator.page(user_tickets_closed_resolved_page)
-    except PageNotAnInteger:
-        tickets_closed_resolved = paginator.page(1)
-    except EmptyPage:
-        tickets_closed_resolved = paginator.page(paginator.num_pages)
+    ctx = {
+        "assigned_tickets": assigned_tickets,
+        "unassigned_tickets": unassigned_tickets,
+        "created_tickets": created_tickets,
+        "closed_tickets": closed_tickets,
+        "kbitems": kbitems,
+        "basic_ticket_stats": basic_ticket_stats,
+        "user_tickets_sort": user_tickets_sort,
+        "user_tickets_closed_sort": user_tickets_closed_sort,
+        "all_tickets_reported_sort": all_tickets_reported_sort,
+        "unassigned_tickets_sort": unassigned_tickets_sort,
+    }
 
-    # get user submitted tickets page
-    paginator = Paginator(all_tickets_reported_by_current_user, tickets_per_page)
-    try:
-        all_tickets_reported_by_current_user = paginator.page(
-            all_tickets_reported_by_current_user_page
-        )
-    except PageNotAnInteger:
-        all_tickets_reported_by_current_user = paginator.page(1)
-    except EmptyPage:
-        all_tickets_reported_by_current_user = paginator.page(paginator.num_pages)
-
-    # get unassigned tickets page
-    paginator = Paginator(unassigned_tickets, tickets_per_page)
-    try:
-        unassigned_tickets = paginator.page(unassigned_tickets_page)
-    except PageNotAnInteger:
-        unassigned_tickets = paginator.page(1)
-    except EmptyPage:
-        unassigned_tickets = paginator.page(paginator.num_pages)
-
-    return render(
-        request,
-        "helpdesk/dashboard.html",
-        {
-            "user_tickets": tickets,
-            "user_tickets_closed_resolved": tickets_closed_resolved,
-            "unassigned_tickets": unassigned_tickets,
-            "kbitems": kbitems,
-            "all_tickets_reported_by_current_user": all_tickets_reported_by_current_user,
-            "basic_ticket_stats": basic_ticket_stats,
-            "user_tickets_sort": user_tickets_sort,
-            "user_tickets_closed_sort": user_tickets_closed_sort,
-            "all_tickets_reported_sort": all_tickets_reported_sort,
-            "unassigned_tickets_sort": unassigned_tickets_sort,
-        },
-    )
-
-
-dashboard = staff_member_required(dashboard)
+    return render(request, "helpdesk/dashboard.html", ctx)
 
 
 def ticket_perm_check(request, ticket):
