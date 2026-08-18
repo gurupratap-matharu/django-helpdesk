@@ -30,10 +30,7 @@
     {% for entry in basic_ticket_stats.open_ticket_stats %}
       <div class="col">
         <div class="card h-100">
-          <div class="card-body">
-            <div class="card-body-icon">
-              <i class="fas fa-fw fa-list"></i>
-            </div>
+          <div class="card-body pb-0">
             <small class="text-body-tertiary text-uppercase fw-medium">{{ entry.0 }}</small>
             <p class="fs-1 mb-0">{{ entry.1 }}</p>
           </div>
@@ -50,7 +47,6 @@
       </div>
     {% endfor %}
   </div>
-
   {# User stats #}
   <div class="row row-cols-1 row-cols-lg-4 g-3 mb-3 mx-2">
     <div class="col">
