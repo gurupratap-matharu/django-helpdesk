@@ -1,144 +1,169 @@
 {% load i18n humanize %}
-<!-- DataTables Example -->
-<div class="card mb-3" id="ticket-table-{{ page_var }}">
-    <div class="card-header">
-        <i class="fas fa-table"></i>
-        {% if ticket_list_caption %}{{ ticket_list_caption }}{% else %}{% trans "Your Tickets" %}{% endif %}
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-bordered table-sm table-striped" id="dataTable" width="100%" cellspacing="0">
-                <thead class="thead-light">
-                    <tr>
-                        <th>
-                            {% if current_sort and sort_param %}
-                                {% with current=current_sort %}
-                                    {% if current == 'id' %}
-                                        <a href="?{{ sort_param }}=-id&{{ page_var }}=1#ticket-table-{{ page_var }}" class="text-dark">{% trans "Ticket" %} <i class="fas fa-sort-up"></i></a>
-                                    {% elif current == '-id' %}
-                                        <a href="?{{ sort_param }}=id&{{ page_var }}=1#ticket-table-{{ page_var }}" class="text-dark">{% trans "Ticket" %} <i class="fas fa-sort-down"></i></a>
-                                    {% else %}
-                                        <a href="?{{ sort_param }}=id&{{ page_var }}=1#ticket-table-{{ page_var }}" class="text-dark">{% trans "Ticket" %} <i class="fas fa-sort"></i></a>
-                                    {% endif %}
-                                {% endwith %}
-                            {% else %}
-                                {% trans "Ticket" %}
-                            {% endif %}
-                        </th>
-                        <th>
-                            {% if current_sort and sort_param %}
-                                {% with current=current_sort %}
-                                    {% if current == 'priority' %}
-                                        <a href="?{{ sort_param }}=-priority&{{ page_var }}=1#ticket-table-{{ page_var }}" class="text-dark">{% trans "Priority" %} <i class="fas fa-sort-up"></i></a>
-                                    {% elif current == '-priority' %}
-                                        <a href="?{{ sort_param }}=priority&{{ page_var }}=1#ticket-table-{{ page_var }}" class="text-dark">{% trans "Priority" %} <i class="fas fa-sort-down"></i></a>
-                                    {% else %}
-                                        <a href="?{{ sort_param }}=priority&{{ page_var }}=1#ticket-table-{{ page_var }}" class="text-dark">{% trans "Priority" %} <i class="fas fa-sort"></i></a>
-                                    {% endif %}
-                                {% endwith %}
-                            {% else %}
-                                {% trans "Priority" %}
-                            {% endif %}
-                        </th>
-                        <th>
-                            {% if current_sort and sort_param %}
-                                {% with current=current_sort %}
-                                    {% if current == 'queue' %}
-                                        <a href="?{{ sort_param }}=-queue&{{ page_var }}=1#ticket-table-{{ page_var }}" class="text-dark">{% trans "Queue" %} <i class="fas fa-sort-up"></i></a>
-                                    {% elif current == '-queue' %}
-                                        <a href="?{{ sort_param }}=queue&{{ page_var }}=1#ticket-table-{{ page_var }}" class="text-dark">{% trans "Queue" %} <i class="fas fa-sort-down"></i></a>
-                                    {% else %}
-                                        <a href="?{{ sort_param }}=queue&{{ page_var }}=1#ticket-table-{{ page_var }}" class="text-dark">{% trans "Queue" %} <i class="fas fa-sort"></i></a>
-                                    {% endif %}
-                                {% endwith %}
-                            {% else %}
-                                {% trans "Queue" %}
-                            {% endif %}
-                        </th>
-                        <th>
-                            {% if current_sort and sort_param %}
-                                {% with current=current_sort %}
-                                    {% if current == 'status' %}
-                                        <a href="?{{ sort_param }}=-status&{{ page_var }}=1#ticket-table-{{ page_var }}" class="text-dark">{% trans "Status" %} <i class="fas fa-sort-up"></i></a>
-                                    {% elif current == '-status' %}
-                                        <a href="?{{ sort_param }}=status&{{ page_var }}=1#ticket-table-{{ page_var }}" class="text-dark">{% trans "Status" %} <i class="fas fa-sort-down"></i></a>
-                                    {% else %}
-                                        <a href="?{{ sort_param }}=status&{{ page_var }}=1#ticket-table-{{ page_var }}" class="text-dark">{% trans "Status" %} <i class="fas fa-sort"></i></a>
-                                    {% endif %}
-                                {% endwith %}
-                            {% else %}
-                                {% trans "Status" %}
-                            {% endif %}
-                        </th>
-                        <th>
-                            {% if current_sort and sort_param %}
-                                {% with current=current_sort %}
-                                    {% if current == 'modified' %}
-                                        <a href="?{{ sort_param }}=-modified&{{ page_var }}=1#ticket-table-{{ page_var }}" class="text-dark">{% trans "Last Update" %} <i class="fas fa-sort-up"></i></a>
-                                    {% elif current == '-modified' %}
-                                        <a href="?{{ sort_param }}=modified&{{ page_var }}=1#ticket-table-{{ page_var }}" class="text-dark">{% trans "Last Update" %} <i class="fas fa-sort-down"></i></a>
-                                    {% else %}
-                                        <a href="?{{ sort_param }}=modified&{{ page_var }}=1#ticket-table-{{ page_var }}" class="text-dark">{% trans "Last Update" %} <i class="fas fa-sort"></i></a>
-                                    {% endif %}
-                                {% endwith %}
-                            {% else %}
-                                {% trans "Last Update" %}
-                            {% endif %}
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for ticket in ticket_list %}
-                        <tr class="{{ ticket.get_priority_css_class }}">
-                            <td class="tickettitle"><a href="{{ ticket.get_absolute_url }}">{{ ticket.id }}. {{ ticket.title }}</a></td>
-                            <td>{{ ticket.priority }}</td>
-                            <td>{{ ticket.queue }}</td>
-                            <td>{{ ticket.get_status }}</td>
-                            <td><span title='{{ ticket.modified|date:"DATETIME_FORMAT" }}'>{{ ticket.modified|naturaltime }}</span></td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            {% if ticket_list_empty_message %}
-                                <td colspan='6'>{{ ticket_list_empty_message }}</td>
-                            {% else %}
-                                <td colspan='6'>{% trans "You do not have any pending tickets." %}</td>
-                            {% endif %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <!-- /.table-responsive -->
-        {% if ticket_list.has_other_pages %}
-            <ul class="pagination">
-                <!-- if we aren't on page one, go back to start and go back one controls -->
-                {% if ticket_list.has_previous %}
-                    <li><a href="?{{ page_var }}=1{% if current_sort and sort_param %}&{{ sort_param }}={{ current_sort }}{% endif %}#ticket-table-{{ page_var }}">&laquo;&laquo;</a></li>
-                    <li><a href="?{{ page_var }}={{ ticket_list.previous_page_number }}{% if current_sort and sort_param %}&{{ sort_param }}={{ current_sort }}{% endif %}#ticket-table-{{ page_var }}">&laquo;</a></li>
-                {% else %}
-                    <li class="disabled"><span>&laquo;&laquo;</span></li>
-                    <li class="disabled"><span>&laquo;</span></li>
-                {% endif %}
-                <!-- other pages, set thresh to the number to show before and after active -->
-                {% with 5 as thresh %}
-                    {% for i in ticket_list.paginator.page_range %}
-                        {% if ticket_list.number == i %}
-                            <li class="active"><span>{{ i }} <span class="visually-hidden">(current)</span></span></li>
-                        {% elif i <= ticket_list.number|add:5 and i >= ticket_list.number|add:-5 %}
-                            <li><a href="?{{ page_var }}={{ i }}{% if current_sort and sort_param %}&{{ sort_param }}={{ current_sort }}{% endif %}#ticket-table-{{ page_var }}">{{ i }}</a></li>
-                        {% endif %}
-                    {% endfor %}
+
+<div class="card border-0 mb-3" id="ticket-table-{{ page_var }}">
+  <div class="card-header border-0 bg-transparent p-3">
+    <h6 class="mb-0">{% if ticket_list_caption %}{{ ticket_list_caption }}{% else %}{% translate "Your Tickets" %}{% endif %}</h6>
+  </div>
+  <div class="card-body pt-0">
+    <div class="table-responsive">
+      <table class="table mb-0" id="dataTable">
+        <thead class="text-uppercase small">
+          <tr>
+            <th class="text-body-tertiary fw-medium">
+              {% translate "Ticket" %}
+              {% if current_sort and sort_param %}
+                {% with current=current_sort %}
+                  {% if current == 'id' %}
+                    <a href="?{{ sort_param }}=-id&{{ page_var }}=1#ticket-table-{{ page_var }}" class="link-secondary">
+                      <i class="fas fa-sort-up"></i>
+                    </a>
+                  {% elif current == "-id" %}
+                    <a href="?{{ sort_param }}=id&{{ page_var }}=1#ticket-table-{{ page_var }}" class="link-secondary">
+                      <i class="fas fa-sort-down"></i>
+                    </a>
+                  {% else %}
+                    <a href="?{{ sort_param }}=id&{{ page_var }}=1#ticket-table-{{ page_var }}" class="link-secondary">
+                      <i class="fas fa-sort"></i></a>
+                  {% endif %}
                 {% endwith %}
-                <!-- if we aren't on the last page, go forward one and go to end controls -->
-                {% if ticket_list.has_next %}
-                    <li><a href="?{{ page_var }}={{ ticket_list.next_page_number }}{% if current_sort and sort_param %}&{{ sort_param }}={{ current_sort }}{% endif %}#ticket-table-{{ page_var }}">&raquo;</a></li>
-                    <li><a href="?{{ page_var }}={{ ticket_list.paginator.num_pages }}{% if current_sort and sort_param %}&{{ sort_param }}={{ current_sort }}{% endif %}#ticket-table-{{ page_var }}">&raquo;&raquo;</a></li>
-                {% else %}
-                    <li class="disabled"><span>&raquo;</span></li>
-                    <li class="disabled"><span>&raquo;&raquo;</span></li>
-                {% endif %}
-            </ul>
-        {% endif %}
+              {% endif %}
+            </th>
+            <th class="text-body-tertiary fw-medium">
+              {% translate "Priority" %}
+              {% if current_sort and sort_param %}
+                {% with current=current_sort %}
+                  {% if current == 'priority' %}
+                    <a href="?{{ sort_param }}=-priority&{{ page_var }}=1#ticket-table-{{ page_var }}" class="link-secondary">
+                      <i class="fas fa-sort-up"></i></a>
+                  {% elif current == '-priority' %}
+                    <a href="?{{ sort_param }}=priority&{{ page_var }}=1#ticket-table-{{ page_var }}" class="link-secondary">
+                      <i class="fas fa-sort-down"></i></a>
+                  {% else %}
+                    <a href="?{{ sort_param }}=priority&{{ page_var }}=1#ticket-table-{{ page_var }}" class="link-secondary">
+                      <i class="fas fa-sort"></i></a>
+                  {% endif %}
+                {% endwith %}
+              {% endif %}
+            </th>
+            <th class="text-body-tertiary fw-medium">
+              {% translate "Queue" %}
+              {% if current_sort and sort_param %}
+                {% with current=current_sort %}
+                  {% if current == 'queue' %}
+                    <a href="?{{ sort_param }}=-queue&{{ page_var }}=1#ticket-table-{{ page_var }}" class="link-secondary">
+                      <i class="fas fa-sort-up"></i></a>
+                  {% elif current == '-queue' %}
+                    <a href="?{{ sort_param }}=queue&{{ page_var }}=1#ticket-table-{{ page_var }}" class="link-secondary"">
+                      <i class="fas fa-sort-down"></i></a>
+                  {% else %}
+                    <a href="?{{ sort_param }}=queue&{{ page_var }}=1#ticket-table-{{ page_var }}" class="link-secondary">
+                      <i class="fas fa-sort"></i></a>
+                  {% endif %}
+                {% endwith %}
+              {% endif %}
+            </th>
+            <th class="text-body-tertiary fw-medium">
+              {% translate "Status" %}
+              {% if current_sort and sort_param %}
+                {% with current=current_sort %}
+                  {% if current == 'status' %}
+                    <a href="?{{ sort_param }}=-status&{{ page_var }}=1#ticket-table-{{ page_var }}" class="link-secondary">
+                      <i class="fas fa-sort-up"></i></a>
+                  {% elif current == '-status' %}
+                    <a href="?{{ sort_param }}=status&{{ page_var }}=1#ticket-table-{{ page_var }}" class="link-secondary">
+                      <i class="fas fa-sort-down"></i></a>
+                  {% else %}
+                    <a href="?{{ sort_param }}=status&{{ page_var }}=1#ticket-table-{{ page_var }}" class="link-secondary">
+                      <i class="fas fa-sort"></i></a>
+                  {% endif %}
+                {% endwith %}
+              {% endif %}
+            </th>
+            <th class="text-body-tertiary fw-medium">
+              {% translate "Last Update" %}
+              {% if current_sort and sort_param %}
+                {% with current=current_sort %}
+                  {% if current == 'modified' %}
+                    <a href="?{{ sort_param }}=-modified&{{ page_var }}=1#ticket-table-{{ page_var }}" class="link-secondary">
+                      <i class="fas fa-sort-up"></i></a>
+                  {% elif current == '-modified' %}
+                    <a href="?{{ sort_param }}=modified&{{ page_var }}=1#ticket-table-{{ page_var }}" class="link-secondary">
+                      <i class="fas fa-sort-down"></i></a>
+                  {% else %}
+                    <a href="?{{ sort_param }}=modified&{{ page_var }}=1#ticket-table-{{ page_var }}" class="link-secondary">
+                      <i class="fas fa-sort"></i></a>
+                  {% endif %}
+                {% endwith %}
+              {% endif %}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ticket in ticket_list %}
+            <tr class="{{ ticket.get_priority_css_class }}">
+              <td class="tickettitle"><a href="{{ ticket.get_absolute_url }}">{{ ticket.id }}. {{ ticket.title }}</a></td>
+              <td><span class="badge text-warning-emphasis bg-warning-subtle">{{ ticket.priority }}</span></td>
+              <td><span class="badge text-bg-light text-secondary">{{ ticket.queue }}</span></td>
+              <td><span class="badge text-danger-emphasis bg-danger-subtle">{{ ticket.get_status }}</span></td>
+              <td class="small text-body-secondary"><span title="{{ ticket.modified|date:"DATETIME_FORMAT" }}">{{ ticket.modified|naturaltime }}</span></td>
+            </tr>
+          {% empty %}
+            <tr>
+              {% if ticket_list_empty_message %}
+                <td colspan='6'>{{ ticket_list_empty_message }}</td>
+              {% else %}
+                <td colspan='6'>{% translate "You do not have any pending tickets." %}</td>
+              {% endif %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-    <div class="card-footer small text-muted">Listing {{ ticket_list|length }} ticket(s).</div>
+  </div>
+  <div class="card-footer py-0 bg-transparent border-0">
+    <div class="d-flex justify-content-between align-items-center">
+      <span class="small text-muted">{% translate "Total" %} {{ ticket_list|length }} {% translate "ticket(s)" %}</span>
+      {# Pagination #}
+      {% if ticket_list.has_other_pages %}
+        <ul class="pagination pagination-sm mb-0">
+          {% if ticket_list.has_previous %}
+            <li class="page-item">
+              <a class="page-link"
+                href="?{{ page_var }}=1{% if current_sort and sort_param %}&{{ sort_param }}={{ current_sort }}{% endif %}#ticket-table-{{ page_var }}"
+                aria-label="First">
+                <span aria-hidden="true"><i class="fas fa-chevron-left"></i></span>
+              </a>
+            </li>
+            <li class="page-item">
+              <a class="page-link"
+                href="?{{ page_var }}={{ ticket_list.previous_page_number }}{% if current_sort and sort_param %}&{{ sort_param }}={{ current_sort }}{% endif %}#ticket-table-{{ page_var }}" aria-label="Previous">
+                <span aria-hidden="true">{{ ticket_list.previous_page_number }}</span>
+              </a>
+            </li>
+          {% endif %}
+          <li class="page-item active">
+            <span class="page-link">{{ ticket_list.number }}</span>
+          </li>
+          {% if ticket_list.has_next %}
+            {# next page link #}
+            <li class="page-item">
+              <a class="page-link"
+                href="?{{ page_var }}={{ ticket_list.next_page_number }}{% if current_sort and sort_param %}&{{ sort_param }}={{ current_sort }}{% endif %}#ticket-table-{{ page_var }}"
+                aria-label="Next">
+                <span aria-hidden="true">{{ ticket_list.next_page_number }}</span>
+              </a>
+            </li>
+            {# last page link #}
+            <li class="page-item">
+              <a class="page-link"
+                href="?{{ page_var }}={{ ticket_list.paginator.num_pages }}{% if current_sort and sort_param %}&{{ sort_param }}={{ current_sort }}{% endif %}#ticket-table-{{ page_var }}"
+                aria-label="Last">
+                <span aria-hidden="true"><i class="fa fa-chevron-right"></i></span>
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      {% endif %}
+    </div>
+  </div>
 </div>

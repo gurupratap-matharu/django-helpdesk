@@ -1,170 +1,231 @@
 {% load i18n humanize %}
 
-<div class="card mb-3" id="unassigned-table">
-    <div class="card-header">
-        <i class="fas fa-table"></i>
-        {% trans "Unassigned Tickets" %} {% trans "(pick up a ticket if you start to work on it)" %}
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-bordered table-sm table-striped" id="dataTable" width="100%" cellspacing="0">
-                <thead class="thead-light">
-                    <tr>
-                        <th>
-                            {% if unassigned_tickets_sort %}
-                                {% with current=unassigned_tickets_sort %}
-                                    {% if current == 'id' %}
-                                        <a href="?una_sort=-id&{{ page_var }}=1#unassigned-table" class="text-dark">{% trans "Ticket" %} <i class="fas fa-sort-up"></i></a>
-                                    {% elif current == '-id' %}
-                                        <a href="?una_sort=id&{{ page_var }}=1#unassigned-table" class="text-dark">{% trans "Ticket" %} <i class="fas fa-sort-down"></i></a>
-                                    {% else %}
-                                        <a href="?una_sort=id&{{ page_var }}=1#unassigned-table" class="text-dark">{% trans "Ticket" %} <i class="fas fa-sort"></i></a>
-                                    {% endif %}
-                                {% endwith %}
-                            {% else %}
-                                {% trans "Ticket" %}
-                            {% endif %}
-                        </th>
-                        <th>
-                            {% if unassigned_tickets_sort %}
-                                {% with current=unassigned_tickets_sort %}
-                                    {% if current == 'priority' %}
-                                        <a href="?una_sort=-priority&{{ page_var }}=1#unassigned-table" class="text-dark">{% trans "Priority" %} <i class="fas fa-sort-up"></i></a>
-                                    {% elif current == '-priority' %}
-                                        <a href="?una_sort=priority&{{ page_var }}=1#unassigned-table" class="text-dark">{% trans "Priority" %} <i class="fas fa-sort-down"></i></a>
-                                    {% else %}
-                                        <a href="?una_sort=priority&{{ page_var }}=1#unassigned-table" class="text-dark">{% trans "Priority" %} <i class="fas fa-sort"></i></a>
-                                    {% endif %}
-                                {% endwith %}
-                            {% else %}
-                                {% trans "Priority" %}
-                            {% endif %}
-                        </th>
-                        <th>
-                            {% if unassigned_tickets_sort %}
-                                {% with current=unassigned_tickets_sort %}
-                                    {% if current == 'queue' %}
-                                        <a href="?una_sort=-queue&{{ page_var }}=1#unassigned-table" class="text-dark">{% trans "Queue" %} <i class="fas fa-sort-up"></i></a>
-                                    {% elif current == '-queue' %}
-                                        <a href="?una_sort=queue&{{ page_var }}=1#unassigned-table" class="text-dark">{% trans "Queue" %} <i class="fas fa-sort-down"></i></a>
-                                    {% else %}
-                                        <a href="?una_sort=queue&{{ page_var }}=1#unassigned-table" class="text-dark">{% trans "Queue" %} <i class="fas fa-sort"></i></a>
-                                    {% endif %}
-                                {% endwith %}
-                            {% else %}
-                                {% trans "Queue" %}
-                            {% endif %}
-                        </th>
-                        <th>
-                            {% if unassigned_tickets_sort %}
-                                {% with current=unassigned_tickets_sort %}
-                                    {% if current == 'created' %}
-                                        <a href="?una_sort=-created&{{ page_var }}=1#unassigned-table" class="text-dark">{% trans "Created" %} <i class="fas fa-sort-up"></i></a>
-                                    {% elif current == '-created' %}
-                                        <a href="?una_sort=created&{{ page_var }}=1#unassigned-table" class="text-dark">{% trans "Created" %} <i class="fas fa-sort-down"></i></a>
-                                    {% else %}
-                                        <a href="?una_sort=created&{{ page_var }}=1#unassigned-table" class="text-dark">{% trans "Created" %} <i class="fas fa-sort"></i></a>
-                                    {% endif %}
-                                {% endwith %}
-                            {% else %}
-                                {% trans "Created" %}
-                            {% endif %}
-                        </th>
-                        <th>{% trans "Actions" %}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for ticket in unassigned_tickets %}
-                        <tr class="{{ ticket.get_priority_css_class }}">
-                            <td class="tickettitle"><a href='{{ ticket.get_absolute_url }}'>{{ ticket.id }}. {{ ticket.title }} </a></td>
-                            <td>{{ ticket.priority }}</td>
-                            <td>{{ ticket.queue }}</td>
-                            <td><span title='{{ ticket.created|date:"DATETIME_FORMAT" }}'>{{ ticket.created|naturaltime }}</span></td>
-                            <td class="text-center">
-                                <a href='{{ ticket.get_absolute_url }}?take'><button class='btn btn-primary btn-sm'><i class="fas fa-hand-paper"></i>&nbsp;{% trans "Take" %}</button></a>
-                                <a href='{% url 'helpdesk:delete' ticket.id %}?next=dashboard'><button class='btn btn-danger btn-sm'><i class="fas fa-trash"></i>&nbsp;{% trans "Delete" %}</button></a>
-                            </td>
-                        </tr>
-                    {% empty %}
-                        <tr><td colspan='6'>{% trans "There are no unassigned tickets." %}</td></tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <!-- /.table-responsive -->
-        {% if unassigned_tickets.has_other_pages %}
-            <ul class="pagination">
-                <!-- if we aren't on page one, go back to start and go back one controls -->
-                {% if unassigned_tickets.has_previous %}
-                    <li><a href="?{{ page_var }}=1{% if unassigned_tickets_sort %}&una_sort={{ unassigned_tickets_sort }}{% endif %}#unassigned-table">&laquo;&laquo;</a></li>
-                    <li><a href="?{{ page_var }}={{ unassigned_tickets.previous_page_number }}{% if unassigned_tickets_sort %}&una_sort={{ unassigned_tickets_sort }}{% endif %}#unassigned-table">&laquo;</a></li>
-                {% else %}
-                    <li class="disabled"><span>&laquo;&laquo;</span></li>
-                    <li class="disabled"><span>&laquo;</span></li>
-                {% endif %}
-                <!-- other pages, set thresh to the number to show before and after active -->
-                {% with 5 as thresh %}
-                    {% for i in unassigned_tickets.paginator.page_range %}
-                        {% if unassigned_tickets.number == i %}
-                            <li class="active"><span>{{ i }} <span class="visually-hidden">(current)</span></span></li>
-                        {% elif i <= unassigned_tickets.number|add:5 and i >= unassigned_tickets.number|add:-5 %}
-                            <li><a href="?{{ page_var }}={{ i }}{% if unassigned_tickets_sort %}&una_sort={{ unassigned_tickets_sort }}{% endif %}#unassigned-table">{{ i }}</a></li>
-                        {% endif %}
-                    {% endfor %}
+<div class="card border-0 mb-3" id="unassigned-table">
+  <div class="card-header border-0 bg-transparent p-3">
+    <h6 class="mb-0">
+      {% translate "Unassigned Tickets" %}
+      <span class="text-secondary">{% translate "(pick up a ticket if you start to work on it)" %}</span>
+    </h6>
+  </div>
+  <div class="card-body pt-0">
+    <div class="table-responsive">
+      <table class="table mb-0" id="dataTable">
+        <thead class="text-uppercase small">
+          <tr>
+            <th class="text-body-tertiary fw-medium">
+              {% translate "Ticket" %}
+              {% if unassigned_tickets_sort %}
+                {% with current=unassigned_tickets_sort %}
+                  {% if current == 'id' %}
+                    <a href="?una_sort=-id&{{ page_var }}=1#unassigned-table" class="link-secondary">
+                      <i class="fas fa-sort-up"></i></a>
+                  {% elif current == '-id' %}
+                    <a href="?una_sort=id&{{ page_var }}=1#unassigned-table" class="link-secondary">
+                      <i class="fas fa-sort-down"></i></a>
+                  {% else %}
+                    <a href="?una_sort=id&{{ page_var }}=1#unassigned-table" class="link-secondary">
+                      <i class="fas fa-sort"></i></a>
+                  {% endif %}
                 {% endwith %}
-                <!-- if we aren't on the last page, go forward one and go to end controls -->
-                {% if unassigned_tickets.has_next %}
-                    <li><a href="?{{ page_var }}={{ unassigned_tickets.next_page_number }}{% if unassigned_tickets_sort %}&una_sort={{ unassigned_tickets_sort }}{% endif %}#unassigned-table">&raquo;</a></li>
-                    <li><a href="?{{ page_var }}={{ unassigned_tickets.paginator.num_pages }}{% if unassigned_tickets_sort %}&una_sort={{ unassigned_tickets_sort }}{% endif %}#unassigned-table">&raquo;&raquo;</a></li>
-                {% else %}
-                    <li class="disabled"><span>&raquo;</span></li>
-                    <li class="disabled"><span>&raquo;&raquo;</span></li>
-                {% endif %}
-            </ul>
-        {% endif %}
+              {% endif %}
+            </th>
+            <th class="text-body-tertiary fw-medium">
+              {% translate "Priority" %}
+              {% if unassigned_tickets_sort %}
+                {% with current=unassigned_tickets_sort %}
+                  {% if current == 'priority' %}
+                    <a href="?una_sort=-priority&{{ page_var }}=1#unassigned-table" class="link-secondary">
+                      <i class="fas fa-sort-up"></i></a>
+                  {% elif current == '-priority' %}
+                    <a href="?una_sort=priority&{{ page_var }}=1#unassigned-table" class="link-secondary">
+                      <i class="fas fa-sort-down"></i></a>
+                  {% else %}
+                    <a href="?una_sort=priority&{{ page_var }}=1#unassigned-table" class="link-secondary">
+                      <i class="fas fa-sort"></i></a>
+                  {% endif %}
+                {% endwith %}
+              {% endif %}
+            </th>
+            <th class="text-body-tertiary fw-medium">
+              {% translate "Queue" %}
+              {% if unassigned_tickets_sort %}
+                {% with current=unassigned_tickets_sort %}
+                  {% if current == 'queue' %}
+                    <a href="?una_sort=-queue&{{ page_var }}=1#unassigned-table" class="link-secondary">
+                      <i class="fas fa-sort-up"></i></a>
+                  {% elif current == '-queue' %}
+                    <a href="?una_sort=queue&{{ page_var }}=1#unassigned-table" class="link-secondary">
+                      <i class="fas fa-sort-down"></i></a>
+                  {% else %}
+                    <a href="?una_sort=queue&{{ page_var }}=1#unassigned-table" class="link-secondary">
+                      <i class="fas fa-sort"></i></a>
+                  {% endif %}
+                {% endwith %}
+              {% endif %}
+            </th>
+            <th class="text-body-tertiary fw-medium">
+              {% translate "Created" %}
+              {% if unassigned_tickets_sort %}
+                {% with current=unassigned_tickets_sort %}
+                  {% if current == 'created' %}
+                    <a href="?una_sort=-created&{{ page_var }}=1#unassigned-table" class="link-secondary">
+                      <i class="fas fa-sort-up"></i></a>
+                  {% elif current == '-created' %}
+                    <a href="?una_sort=created&{{ page_var }}=1#unassigned-table" class="link-secondary">
+                      <i class="fas fa-sort-down"></i></a>
+                  {% else %}
+                    <a href="?una_sort=created&{{ page_var }}=1#unassigned-table" class="link-secondary">
+                      <i class="fas fa-sort"></i></a>
+                  {% endif %}
+                {% endwith %}
+              {% endif %}
+            </th>
+            <th class="text-body-tertiary fw-medium">{% translate "Actions" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ticket in unassigned_tickets %}
+            <tr class="{{ ticket.get_priority_css_class }}">
+              <td class="tickettitle"><a href="{{ ticket.get_absolute_url }}">{{ ticket.id }}. {{ ticket.title }}</a></td>
+              <td><span class="badge text-warning-emphasis bg-warning-subtle">{{ ticket.priority }}</span></td>
+              <td><span class="badge text-bg-light text-secondary">{{ ticket.queue }}</span></td>
+              <td class="small text-body-secondary"><span title="{{ ticket.created|date:"DATETIME_FORMAT" }}">{{ ticket.created|naturaltime }}</span></td>
+              <td>
+                <div class="dropdown" id="actions-dropdown">
+                  <button class="btn btn-light btn-sm dropdown-toggle"
+                          type="button"
+                          data-bs-toggle="dropdown"
+                          data-bs-auto-close="outside"
+                          aria-expanded="false">{% translate "Actions" %}</button>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a class="dropdown-item" href="{{ ticket.get_absolute_url }}?take">
+                        <i class="fa-regular fa-hand-paper me-2"></i>{% translate "Take" %}</a>
+                    </li>
+                    <li>
+                      <a class="dropdown-item link-danger" href="{% url 'helpdesk:delete' ticket.id %}?next=dashboard">
+                        <i class="fa-regular fa-trash-can me-2"></i>{% translate "Delete" %}
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6">{% translate "There are no unassigned tickets." %}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-    <div class="card-footer small text-muted">Listing {{ unassigned_tickets|length }} ticket(s).</div>
+  </div>
+  <div class="card-footer py-0 bg-transparent border-0">
+    <div class="d-flex justify-content-between align-items-center">
+      <span class="small text-muted">Listing {{ unassigned_tickets|length }} ticket{{ unassigned_tickets|pluralize }}</span>
+      {# Pagination #}
+      {% if unassigned_tickets.has_other_pages %}
+        <ul class="pagination pagination-sm mb-0">
+          {% if unassigned_tickets.has_previous %}
+            <li class="page-item">
+              <a class="page-link"
+                 href="?{{ page_var }}=1{% if unassigned_tickets_sort %}&una_sort={{ unassigned_tickets_sort }}{% endif %}#unassigned-table"
+                 aria-label="First">
+                <span aria-hidden="true"><i class="fas fa-chevron-left"></i></span>
+              </a>
+            </li>
+            <li class="page-item">
+              <a class="page-link"
+                 href="?{{ page_var }}={{ unassigned_tickets.previous_page_number }}{% if unassigned_tickets_sort %}&una_sort={{ unassigned_tickets_sort }}{% endif %}#unassigned-table"
+                 aria-label="Previous"><span aria-hidden="true">{{ unassigned_tickets.previous_page_number }}</span></a>
+            </li>
+          {% endif %}
+          {# current page #}
+          <li class="page-item active">
+            <span class="page-link">{{ unassigned_tickets.number }}</span>
+          </li>
+          {% if unassigned_tickets.has_next %}
+            {# next page link #}
+            <li class="page-item">
+              <a class="page-link"
+                 href="?{{ page_var }}={{ unassigned_tickets.next_page_number }}{% if unassigned_tickets_sort %}&una_sort={{ unassigned_tickets_sort }}{% endif %}#unassigned-table"
+                 aria-label="Next">
+                <span aria-hidden="true">{{ unassigned_tickets.next_page_number }}</span>
+              </a>
+            </li>
+            {# last page link #}
+            <li class="page-item">
+              <a class="page-link"
+                 href="?{{ page_var }}={{ unassigned_tickets.paginator.num_pages }}{% if unassigned_tickets_sort %}&una_sort={{ unassigned_tickets_sort }}{% endif %}#unassigned-table"
+                 aria-label="Last">
+                <span aria-hidden="true"><i class="fa fa-chevron-right"></i></span>
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      {% endif %}
+    </div>
+  </div>
 </div>
 
 {% for kbitem in kbitems %}
-    {% if kbitem.unassigned_tickets %}
-        <div class="card mb-3">
-            <div class="card-header">
-                <i class="fas fa-table"></i>
-                {% trans "KBItem:" %} {{kbitem.title}} {% trans "Team:" %} {{kbitem.get_team.name}} {% trans "(pick up a ticket if you start to work on it)" %}
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-sm table-striped" id="dataTable" width="100%" cellspacing="0">
-                        <thead class="thead-light">
-                            <tr>
-                                <th>{% trans "Ticket" %}</th>
-                                <th>{% trans "Priority" %}</th>
-                                <th>{% trans "Queue" %}</th>
-                                <th>{% trans "Created" %}</th>
-                                <th>{% trans "Actions" %}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for ticket in kbitem.unassigned_tickets %}
-                                <tr class="{{ ticket.get_priority_css_class }}">
-                                    <td class="tickettitle"><a href='{{ ticket.get_absolute_url }}'>{{ ticket.id }}. {{ ticket.title }} </a></td>
-                                    <td>{{ ticket.priority }}</td>
-                                    <td>{{ ticket.queue }}</td>
-                                    <td><span title='{{ ticket.created|date:"DATETIME_FORMAT" }}'>{{ ticket.created|naturaltime }}</span></td>
-                                    <td class="text-center">
-                                        <a href='{{ ticket.get_absolute_url }}?take'><button class='btn btn-primary btn-sm'><i class="fas fa-hand-paper"></i>&nbsp;{% trans "Take" %}</button></a>
-                                        <a href='{% url 'helpdesk:delete' ticket.id %}?next=dashboard'><button class='btn btn-danger btn-sm'><i class="fas fa-trash"></i>&nbsp;{% trans "Delete" %}</button></a>
-                                    </td>
-                                </tr>
-                            {% empty %}
-                                <tr><td colspan='6'>{% trans "There are no unassigned tickets." %}</td></tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="card-footer small text-muted">Listing {{ kbitem.unassigned_tickets|length }} ticket(s).</div>
+  {% if kbitem.unassigned_tickets %}
+    <div class="card border-0 mb-3">
+      <div class="card-header border-0 bg-transparent p-3">
+        {% translate "KBItem:" %} {{ kbitem.title }} {% translate "Team:" %} {{ kbitem.get_team.name }} <span class="text-secondary">{% translate "(pick up a ticket if you start to work on it)" %}</span>
+      </div>
+      <div class="card-body pt-0">
+        <div class="table-responsive">
+          <table class="table mb-0" id="dataTable">
+            <thead class="table-light text-uppercase small">
+              <tr>
+                <th class="text-body-tertiary fw-medium">{% translate "Ticket" %}</th>
+                <th class="text-body-tertiary fw-medium">{% translate "Priority" %}</th>
+                <th class="text-body-tertiary fw-medium">{% translate "Queue" %}</th>
+                <th class="text-body-tertiary fw-medium">{% translate "Created" %}</th>
+                <th class="text-body-tertiary fw-medium">{% translate "Actions" %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ticket in kbitem.unassigned_tickets %}
+                <tr class="{{ ticket.get_priority_css_class }}">
+                  <td class="tickettitle"><a href="{{ ticket.get_absolute_url }}">{{ ticket.id }}. {{ ticket.title }}</a></td>
+                  <td><span class="badge text-warning-emphasis bg-warning-subtle">{{ ticket.priority }}</span></td>
+                  <td><span class="badge text-bg-light text-secondary">{{ ticket.queue }}</span></td>
+                  <td class="small text-body-secondary"><span title="{{ ticket.created|date:"DATETIME_FORMAT" }}">{{ ticket.created|naturaltime }}</span></td>
+                  <td>
+                    <div class="dropdown" id="actions-dropdown">
+                      <button class="btn btn-light btn-sm dropdown-toggle"
+                              type="button"
+                              data-bs-toggle="dropdown"
+                              data-bs-auto-close="outside"
+                              aria-expanded="false">{% translate "Actions" %}</button>
+                      <ul class="dropdown-menu">
+                        <li>
+                          <a class="dropdown-item" href="{{ ticket.get_absolute_url }}?take">
+                            <i class="fa-regular fa-hand-paper me-2"></i>{% translate "Take" %}</a>
+                        </li>
+                        <li>
+                          <a class="dropdown-item link-danger" href="{% url 'helpdesk:delete' ticket.id %}?next=dashboard">
+                            <i class="fa-regular fa-trash-can me-2"></i>{% translate "Delete" %}
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="6">{% translate "There are no unassigned tickets." %}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
-    {% endif %}
+      </div>
+      <div class="card-footer py-0 bg-transparent border-0">
+        <span class="small text-muted">Listing {{ kbitem.unassigned_tickets|length }} ticket{{ kbitem.unassigned_tickets|pluralize }}</span>
+      </div>
+    </div>
+  {% endif %}
 {% endfor %}
