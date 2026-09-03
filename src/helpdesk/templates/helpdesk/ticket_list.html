@@ -5,7 +5,6 @@
 {% block helpdesk_title %}
   {% translate "Tickets" %}
 {% endblock helpdesk_title %}
-
 {% block helpdesk_head %}
   {# Timeline 3 CSS #}
   {% if helpdesk_settings.HELPDESK_USE_CDN %}
@@ -14,11 +13,9 @@
     <link title="timeline-styles" rel="stylesheet" href="{% static 'helpdesk/vendor/timeline3/css/timeline.css' %}" />
   {% endif %}
 {% endblock helpdesk_head %}
-
 {% block h1_title %}Tickets
   {% if from_saved_query %}[{{ saved_query.title }}]{% endif %}
 {% endblock h1_title %}
-
 {% block helpdesk_breadcrumb %}
   <li class="breadcrumb-item">
     <a href="{% url 'helpdesk:list' %}">{% translate "Tickets" %}</a>
@@ -30,7 +27,6 @@
     <li class="breadcrumb-item active">{% translate "Overview" %}</li>
   {% endif %}
 {% endblock helpdesk_breadcrumb %}
-
 {% block helpdesk_body %}
   {% if helpdesk_settings.HELPDESK_TICKETS_TIMELINE_ENABLED %}
     <ul class="nav nav-underline justify-content-end mx-3">
@@ -68,30 +64,30 @@
             {% csrf_token %}
             {# Main Datatable #}
             <table class="table" id="ticketTable" data-page-length='{{ default_tickets_per_page }}'>
-              <thead class="table-light text-uppercase small">
+              <thead class="table text-uppercase small">
                 <tr>
                   <th></th>
-                  <th class="text-body-tertiary fw-medium">{% trans "Ticket" %}</th>
-                  <th class="text-body-tertiary fw-medium">{% trans "Priority" %}</th>
-                  <th class="text-body-tertiary fw-medium">{% trans "Queue" %}</th>
-                  <th class="text-body-tertiary fw-medium">{% translate "Status" %}</th>
-                  <th class="text-body-tertiary fw-medium">{% trans "Created" %}</th>
-                  <th class="text-body-tertiary fw-medium">{% trans "Due Date" %}</th>
-                  <th class="text-body-tertiary fw-medium">{% trans "Owner" %}</th>
-                  <th class="text-body-tertiary fw-medium">{% trans "Submitter" %}</th>
-                  <th class="text-body-tertiary fw-medium">{% trans "Last Followup" %}</th>
+                  <th class="fw-medium"><span class="text-body-secondary">{% trans "Ticket" %}</span></th>
+                  <th class="fw-medium"><span class="text-body-secondary">{% trans "Priority" %}</span></th>
+                  <th class="fw-medium"><span class="text-body-secondary">{% trans "Queue" %}</span></th>
+                  <th class="fw-medium"><span class="text-body-secondary">{% trans "Status" %}</span></th>
+                  <th class="fw-medium"><span class="text-body-secondary">{% trans "Created" %}</span></th>
+                  <th class="fw-medium"><span class="text-body-secondary">{% trans "Due Date" %}</span></th>
+                  <th class="fw-medium"><span class="text-body-secondary">{% trans "Owner" %}</span></th>
+                  <th class="fw-medium"><span class="text-body-secondary">{% trans "Submitter" %}</span></th>
+                  <th class="fw-medium"><span class="text-body-secondary">{% trans "Last Followup" %}</span></th>
                   {% if helpdesk_settings.HELPDESK_ENABLE_TIME_SPENT_ON_TICKET %}
-                    <th class="text-body-tertiary fw-medium">{% trans "Time Spent" %}</th>
+                    <th class="fw-medium"><span class="text-body-secondary">{% trans "Time Spent" %}</span></th>
                   {% endif %}
                   {% if helpdesk_settings.HELPDESK_KB_ENABLED %}
-                    <th class="text-body-tertiary fw-medium">{% trans "KB item" %}</th>
+                    <th class="fw-medium"><span class="text-body-secondary">{% trans "KB Item" %}</span></th>
                   {% endif %}
                 </tr>
               </thead>
             </table>
             {# Actions dropdown #}
             <div class="dropdown dropend" id="actions-dropdown">
-              <button class="btn btn-light dropdown-toggle"
+              <button class="btn btn-outline-secondary border-0 dropdown-toggle"
                       type="button"
                       data-bs-toggle="dropdown"
                       data-bs-auto-close="outside"
@@ -179,7 +175,7 @@
     {% endif %}
   </div>
   {# Filters Offcanvas #}
-  <a class="btn btn-light"
+  <a class="btn btn-outline-secondary border-0"
      id="advanced-filters"
      data-bs-toggle="offcanvas"
      href="#offcanvasFilters"
@@ -215,7 +211,7 @@
     </div>
   </div>
   {# Queries Offcanvas #}
-  <button class="btn btn-light"
+  <button class="btn btn-outline-secondary border-0"
           id="queries"
           type="button"
           data-bs-toggle="offcanvas"
@@ -309,7 +305,6 @@
     </div>
   </div>
 {% endblock helpdesk_body %}
-
 {% block helpdesk_js %}
   {# Timeline 3 JavaScript #}
   {% if helpdesk_settings.HELPDESK_USE_CDN %}
@@ -318,194 +313,194 @@
     <script src="{% static 'helpdesk/vendor/timeline3/js/timeline.js' %}"></script>
   {% endif %}
   <script>
-       window.helpdesk_settings = {
-            LANGUAGE_CODE: "{{ helpdesk_settings.LANGUAGE_CODE|default:'en-US' }}",
-            NO_FOLLOWUP_TEXT: "{% trans helpdesk_settings.ALTERNATIVE_UI_STRINGS.No_followup_found|default:'No followup found' %}"
-       };
+    window.helpdesk_settings = {
+      LANGUAGE_CODE: "{{ helpdesk_settings.LANGUAGE_CODE|default:'en-US' }}",
+      NO_FOLLOWUP_TEXT: "{% trans helpdesk_settings.ALTERNATIVE_UI_STRINGS.No_followup_found|default:'No followup found' %}"
+    };
 
-       function get_url(row) {
-            return "{% url 'helpdesk:view' 1234 %}".replace(/1234/, row.id.toString());
-       }
+    function get_url(row) {
+      return "{% url 'helpdesk:view' 1234 %}".replace(/1234/, row.id.toString());
+    }
 
-       function htmlEntities(str) {
-            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-       }
+    function htmlEntities(str) {
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
 
-       const renderDateTime = (data, type, row, meta) => `<span class="small text-secondary">${data}</span>`
+    const renderDateTime = (data, type, row, meta) => `<span class="small text-secondary">${data}</span>`
 
-       $(document).ready(function() {
-            // Ticket DataTable Initialization
-            $.fn.dataTable.ext.errMode = function(settings, helpPage, message) {
-                 alert("{% trans 'Error fetching tickets occured, please contact the system administrators of this server providing the message below:\n    ' %}" + message)
-            };
-            $('#ticketTable').DataTable({
-                 language: {
-                      "emptyTable": "{% trans 'No Tickets Match Your Selection' %}"
-                 },
-                 stateSave: true,
-                 processing: true,
-                 serverSide: true,
-                 ajax: {
-                      "url": "{% url 'helpdesk:datatables_ticket_list' urlsafe_query %}",
-                      "type": "GET",
-                 },
-                 createdRow: function(row, data, dataIndex) {
-                      $(row).addClass(data.row_class);
-                 },
-                 layout: {
-                      topStart: [
-                           $("#actions-dropdown"),
-                           $("#advanced-filters"),
-                           $("#queries"),
-                      ],
-                      topEnd: {
-                           'search': {
-                                'placeholder': "{% translate 'Search any ticket by id or title...' %}",
-                           },
-                           'buttons': [{
-                                extend: "colvis",
-                                className: "btn btn-light",
-                                id: "column-visibility",
-                                text: "Columns"
-                           }],
+    $(document).ready(function() {
+      // Ticket DataTable Initialization
+      $.fn.dataTable.ext.errMode = function(settings, helpPage, message) {
+        alert("{% trans 'Error fetching tickets occured, please contact the system administrators of this server providing the message below:\n    ' %}" + message)
+      };
+      $('#ticketTable').DataTable({
+        language: {
+          "emptyTable": "{% trans 'No Tickets Match Your Selection' %}"
+        },
+        stateSave: true,
+        processing: true,
+        serverSide: true,
+        ajax: {
+          "url": "{% url 'helpdesk:datatables_ticket_list' urlsafe_query %}",
+          "type": "GET",
+        },
+        createdRow: function(row, data, dataIndex) {
+          $(row).addClass(data.row_class);
+        },
+        layout: {
+          topStart: [
+            $("#actions-dropdown"),
+            $("#advanced-filters"),
+            $("#queries"),
+          ],
+          topEnd: {
+            'search': {
+              'placeholder': "{% translate 'Search any ticket by id or title...' %}",
+            },
+            'buttons': [{
+              extend: "colvis",
+              className: "btn btn-outline-secondary border-0",
+              id: "column-visibility",
+              text: "Columns"
+            }],
 
-                      },
-                      bottomStart: ['info', 'pageLength'],
-                      bottomEnd: {
-                           'paging': {
-                                'buttons': 3
-                           }
-                      },
+          },
+          bottomStart: ['info', 'pageLength'],
+          bottomEnd: {
+            'paging': {
+              'buttons': 3
+            }
+          },
 
-                 },
-                 columns: [{
-                           data: "id",
-                           orderable: false,
-                           render: function(data, type, row, meta) {
-                                const pk = data;
-                                if (type === 'display') {
-                                     data = "<div class='form-check'><input type='checkbox' name='ticket_id' value='" + pk + "' class='ticket_multi_select form-check-input' /></div>"
-                                }
-                                return data
-                           }
-                      }, {
-                           data: "ticket",
-                           render: function(data, type, row, meta) {
-                                if (type === 'display') {
-                                     data = '<div class="tickettitle"><a href="' + get_url(row) + '">' +
-                                          row.id + '. ' +
-                                          htmlEntities(row.title) + '</a></div>';
-                                }
-                                return data
-                           }
-}, {
-                            data: "priority",
-                            render: function(data, type, row, meta) {
-                                 const context = row.priority_badge_class || "secondary";
-                                 return `<span class="badge text-${context}-emphasis bg-${context}-subtle">${data}</span>`
-                            },
-                            visible: false,
-                       }, {
-                            data: "queue",
-                            render: function(data, type, row, meta) {
-                                 return `<span class="badge text-bg-light text-secondary">${data.title}</span>`
-                            },
-                            visible: false,
-                       }, {
-                            data: "status",
-                             render: function(data, type, row, meta) {
-                                 const context = row.status_badge_class || "secondary";
-                                 return `<span class="badge text-${context}-emphasis bg-${context}-subtle text-wrap">${data}</span>`
-                            },
-                       }, {
-                           data: "created",
-                           render: renderDateTime
-                      }, {
-                           data: "due_date",
-                           render: renderDateTime,
-                           "visible": false
-                      }, {
-                           data: "assigned_to",
-                           render: function(data, type, row, meta) {
-                                if (data !== "None") {
-                                     return data;
-                                }
-                                return "";
-                           }
-                      }, {
-                           data: "submitter"
-                      }, {
-                           data: "last_followup",
-                           render: function(data, type, row) {
-                                let locale = navigator.language || navigator.userLanguage || window.helpdesk_settings.LANGUAGE_CODE;
+        },
+        columns: [{
+            data: "id",
+            orderable: false,
+            render: function(data, type, row, meta) {
+              const pk = data;
+              if (type === 'display') {
+                data = "<div class='form-check'><input type='checkbox' name='ticket_id' value='" + pk + "' class='ticket_multi_select form-check-input' /></div>"
+              }
+              return data
+            }
+          }, {
+            data: "ticket",
+            render: function(data, type, row, meta) {
+              if (type === 'display') {
+                data = '<div class="tickettitle"><a href="' + get_url(row) + '">' +
+                  row.id + '. ' +
+                  htmlEntities(row.title) + '</a></div>';
+              }
+              return data
+            }
+          }, {
+            data: "priority",
+            render: function(data, type, row, meta) {
+              const context = row.priority_badge_class || "secondary";
+              return `<span class="badge text-${context}-emphasis bg-${context}-subtle">${data}</span>`
+            },
+            visible: false,
+          }, {
+            data: "queue",
+            render: function(data, type, row, meta) {
+              return `<span class="badge text-bg-light text-secondary">${data.title}</span>`
+            },
+            visible: false,
+          }, {
+            data: "status",
+            render: function(data, type, row, meta) {
+              const context = row.status_badge_class || "secondary";
+              return `<span class="badge text-${context}-emphasis bg-${context}-subtle text-wrap">${data}</span>`
+            },
+          }, {
+            data: "created",
+            render: renderDateTime
+          }, {
+            data: "due_date",
+            render: renderDateTime,
+            "visible": false
+          }, {
+            data: "assigned_to",
+            render: function(data, type, row, meta) {
+              if (data !== "None") {
+                return data;
+              }
+              return "";
+            }
+          }, {
+            data: "submitter"
+          }, {
+            data: "last_followup",
+            render: function(data, type, row) {
+              let locale = navigator.language || navigator.userLanguage || window.helpdesk_settings.LANGUAGE_CODE;
 
-                                if (isNaN(Date.parse(data))) {
-                                     return `<span class="small text-secondary">${window.helpdesk_settings.NO_FOLLOWUP_TEXT}</span>`
-                                }
+              if (isNaN(Date.parse(data))) {
+                return `<span class="small text-secondary">${window.helpdesk_settings.NO_FOLLOWUP_TEXT}</span>`
+              }
 
-                                let date = new Date(data);
-                                const lastFollowupDate = date.toLocaleString(locale, {
-                                     weekday: "short",
-                                     year: "numeric",
-                                     month: "long",
-                                     day: "numeric",
-                                     hour: "2-digit",
-                                     minute: "2-digit",
-                                     hour12: true
-                                });
-                                return `<span class="small text-secondary">${lastFollowupDate}</span>`
-                           }
-                      },
-                      {% if helpdesk_settings.HELPDESK_ENABLE_TIME_SPENT_ON_TICKET %}
-                      {
-                           data: "time_spent",
-                           "visible": false
-                      },
-                      {% endif %}
-                      {% if helpdesk_settings.HELPDESK_KB_ENABLED %}
-                      {
-                           data: "kbitem"
-                      },
-                      {% endif %}
-                 ],
-                 order: []
-            });
+              let date = new Date(data);
+              const lastFollowupDate = date.toLocaleString(locale, {
+                weekday: "short",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true
+              });
+              return `<span class="small text-secondary">${lastFollowupDate}</span>`
+            }
+          },
+          {% if helpdesk_settings.HELPDESK_ENABLE_TIME_SPENT_ON_TICKET %}
+          {
+            data: "time_spent",
+            "visible": false
+          },
+          {% endif %}
+          {% if helpdesk_settings.HELPDESK_KB_ENABLED %}
+          {
+            data: "kbitem"
+          },
+          {% endif %}
+        ],
+        order: []
+      });
 
-            {# Shortcuts to select/unselect multiple tickets #}
-            $("#select_all_btn").click(function() {
-                 $(".ticket_multi_select").prop('checked', true);
-            });
-            $("#select_none_btn").click(function() {
-                 $(".ticket_multi_select").prop('checked', false);
-            });
-            $("#select_inverse_btn").click(function() {
-                 $(".ticket_multi_select").each(function() {
-                      $(this).prop('checked', !$(this).prop('checked'));
-                 });
-            });
+      {# Shortcuts to select/unselect multiple tickets #}
+      $("#select_all_btn").click(function() {
+        $(".ticket_multi_select").prop('checked', true);
+      });
+      $("#select_none_btn").click(function() {
+        $(".ticket_multi_select").prop('checked', false);
+      });
+      $("#select_inverse_btn").click(function() {
+        $(".ticket_multi_select").each(function() {
+          $(this).prop('checked', !$(this).prop('checked'));
+        });
+      });
 
-            $(".buttons-colvis").removeClass('dt-button')
-            $("#dt-search-0").removeClass('form-control-sm')
+      $(".buttons-colvis").removeClass('dt-button')
+      $("#dt-search-0").removeClass('form-control-sm')
 
-            {# Timeline initialization when tab is displayed #}
-            // The TL.Timeline constructor takes at least two arguments:
-            // the id of the Timeline container (no '#'), and
-            // the URL to your JSON data file or Google spreadsheet.
-            // the id must refer to an element "above" this code,
-            // and the element must have CSS styling to give it width and height
-            // optionally, a third argument with configuration options can be passed.
-            // See below for more about options.
-            let timeline_loaded = false;
-            $('#timelinetabcontents-tab').on('shown.bs.tab', function(e) {
-                 if (!timeline_loaded) {
-                      new TL.Timeline(
-                           'timeline-embed',
-                           '{% url 'helpdesk:timeline_ticket_list' urlsafe_query %}'
-                      );
-                      timeline_loaded = true;
-                 }
-            });
+      {# Timeline initialization when tab is displayed #}
+      // The TL.Timeline constructor takes at least two arguments:
+      // the id of the Timeline container (no '#'), and
+      // the URL to your JSON data file or Google spreadsheet.
+      // the id must refer to an element "above" this code,
+      // and the element must have CSS styling to give it width and height
+      // optionally, a third argument with configuration options can be passed.
+      // See below for more about options.
+      let timeline_loaded = false;
+      $('#timelinetabcontents-tab').on('shown.bs.tab', function(e) {
+        if (!timeline_loaded) {
+          new TL.Timeline(
+            'timeline-embed',
+            '{% url 'helpdesk:timeline_ticket_list' urlsafe_query %}'
+          );
+          timeline_loaded = true;
+        }
+      });
 
-       })
+    })
   </script>
 {% endblock helpdesk_js %}
