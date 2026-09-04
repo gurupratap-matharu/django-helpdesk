@@ -1,82 +1,94 @@
-{% extends "helpdesk/public_base.html" %}{% load i18n %}
+{% extends "helpdesk/base.html" %}
+
+{% load i18n static %}
+
+{% block helpdesk_head %}
+  <link href="{% static 'helpdesk/vendor/datatables/css/dataTables.bootstrap5.css' %}" rel="stylesheet" />
+  <link href="{% static 'helpdesk/vendor/datatables/css/buttons.dataTables.css' %}" rel="stylesheet" />
+{% endblock helpdesk_head %}
+
+{% block helpdesk_breadcrumb %}
+  <li class="breadcrumb-item">
+    <a href="{% url 'helpdesk:home' %}">{% translate "Home" %}</a>
+  </li>
+  <li class="breadcrumb-item active">{% translate "My Tickets" %}</li>
+{% endblock helpdesk_breadcrumb %}
 
 {% block helpdesk_body %}
-<h2>{% trans "My Tickets" %}</h2>
+  <h2 class="m-md-3">{% translate "My Tickets" %}</h2>
 
-<div class="container mt-4">
-    <div class="form-check mb-2">
-        <input class="form-check-input" type="checkbox" id="hideClosed" checked>
-        <label class="form-check-label" for="hideClosed">
-            {% trans "Hide Closed Tickets" %}
-        </label>
-    </div>
-
-    <table class="table table-striped" id="ticketsTable">
-        <thead>
-            <tr>
-                <th>{% trans "Title" %}</th>
-                <th>{% trans "Queue" %}</th>
-                <th>{% trans "Status" %}</th>
-                <th>{% trans "Created" %}</th>
-            </tr>
+  <div class="card border-0">
+    <div class="card-body">
+      <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" id="hideClosed" checked />
+        <label class="form-check-label" for="hideClosed">{% translate "Hide Closed Tickets" %}</label>
+      </div>
+      <table class="table" id="ticketsTable">
+        <thead class="text-uppercase-small">
+          <tr>
+            <th class="fw-medium"><span class="text-body-secondary">{% translate "Title" %}</span></th>
+            <th class="fw-medium"><span class="text-body-secondary">{% translate "Queue" %}</span></th>
+            <th class="fw-medium"><span class="text-body-secondary">{% translate "Status" %}</span></th>
+            <th class="fw-medium"><span class="text-body-secondary">{% translate "Created" %}</span></th>
+          </tr>
         </thead>
-        <tbody>
-            <!-- Rows will be added here dynamically using jQuery -->
-        </tbody>
-    </table>
-    <nav aria-label="{% trans 'Page navigation' %}">
-        <ul class="pagination" id="pagination">
-            <!-- Pagination buttons will be added here dynamically -->
-        </ul>
-    </nav>
-</div>
+      </table>
+    </div>
+  </div>
+{% endblock helpdesk_body %}
 
-<script>
-window.addEventListener('load', function() {
-    const table = $('#ticketsTable').DataTable({
+{% block helpdesk_js %}
+  <script src="{% static 'helpdesk/vendor/datatables/js/dataTables.min.js' %}"></script>
+  <script src="{% static 'helpdesk/vendor/datatables/js/dataTables.bootstrap5.min.js' %}"></script>
+  <script src="{% static 'helpdesk/vendor/datatables/js/dataTables.buttons.min.js' %}"></script>
+  <script src="{% static 'helpdesk/vendor/datatables/js/buttons.colVis.min.js' %}"></script>
+  <script>
+    window.addEventListener('load', function() {
+      const table = $('#ticketsTable').DataTable({
         paging: true,
         searching: true,
         ordering: true,
-        columns: [
-            { data: 'title',
-              render: function(data, type, row) {
-                  const safeTitle = $('<div>').html(data).html();
-                  return `<a href='{% url "helpdesk:public_view" %}?ticket=${row.id}&email=${row.submitter}&key=${row.secret_key}'>${safeTitle}</a>`;
-              }
-            },
-            { data: 'queue.title' },
-            { data: 'status' },
-            { data: 'created' }
-        ]
-    });
+        columns: [{
+          data: 'title',
+          render: function(data, type, row) {
+            const safeTitle = $('<div>').html(data).html();
+            return `<a href='{% url "helpdesk:public_view" %}?ticket=${row.id}&email=${row.submitter}&key=${row.secret_key}'>${safeTitle}</a>`;
+          }
+        }, {
+          data: 'queue.title'
+        }, {
+          data: 'status'
+        }, {
+          data: 'created'
+        }]
+      });
 
-    let allTickets = [];
+      let allTickets = [];
 
-    function fetchTickets(page = 1) {
+      function fetchTickets(page = 1) {
         const endpoint = '{% url "helpdesk:user_tickets-list" %}?page=' + page;
 
         $.get(endpoint, function(data) {
-            allTickets = data.results.slice();
-            renderTickets();
+          allTickets = data.results.slice();
+          renderTickets();
         });
-    }
+      }
 
-    function renderTickets() {
+      function renderTickets() {
         let tickets = allTickets.slice();
 
         if ($('#hideClosed').is(':checked')) {
-            const hiddenStatuses = ['closed', 'duplicate'];
-            tickets = tickets.filter(ticket => !hiddenStatuses.includes(ticket.status.toLowerCase()));
+          const hiddenStatuses = ['closed', 'duplicate'];
+          tickets = tickets.filter(ticket => !hiddenStatuses.includes(ticket.status.toLowerCase()));
         }
 
         table.clear().rows.add(tickets).draw();
-    }
+      }
 
-    // Re-fetch when checkbox changes
-    $('#hideClosed').change(renderTickets);
+      // Re-fetch when checkbox changes
+      $('#hideClosed').change(renderTickets);
 
-    fetchTickets();
-});
-</script>
-
-{% endblock %}
+      fetchTickets();
+    });
+  </script>
+{% endblock helpdesk_js %}

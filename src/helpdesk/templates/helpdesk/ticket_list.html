@@ -5,6 +5,7 @@
 {% block helpdesk_title %}
   {% translate "Tickets" %}
 {% endblock helpdesk_title %}
+
 {% block helpdesk_head %}
   {# Timeline 3 CSS #}
   {% if helpdesk_settings.HELPDESK_USE_CDN %}
@@ -12,10 +13,15 @@
   {% else %}
     <link title="timeline-styles" rel="stylesheet" href="{% static 'helpdesk/vendor/timeline3/css/timeline.css' %}" />
   {% endif %}
+  {# DataTables CSS #}
+  <link href="{% static 'helpdesk/vendor/datatables/css/dataTables.bootstrap5.css' %}" rel="stylesheet" />
+  <link href="{% static 'helpdesk/vendor/datatables/css/buttons.dataTables.css' %}" rel="stylesheet" />
 {% endblock helpdesk_head %}
+
 {% block h1_title %}Tickets
   {% if from_saved_query %}[{{ saved_query.title }}]{% endif %}
 {% endblock h1_title %}
+
 {% block helpdesk_breadcrumb %}
   <li class="breadcrumb-item">
     <a href="{% url 'helpdesk:list' %}">{% translate "Tickets" %}</a>
@@ -27,6 +33,7 @@
     <li class="breadcrumb-item active">{% translate "Overview" %}</li>
   {% endif %}
 {% endblock helpdesk_breadcrumb %}
+
 {% block helpdesk_body %}
   {% if helpdesk_settings.HELPDESK_TICKETS_TIMELINE_ENABLED %}
     <ul class="nav nav-underline justify-content-end mx-3">
@@ -305,6 +312,7 @@
     </div>
   </div>
 {% endblock helpdesk_body %}
+
 {% block helpdesk_js %}
   {# Timeline 3 JavaScript #}
   {% if helpdesk_settings.HELPDESK_USE_CDN %}
@@ -312,6 +320,11 @@
   {% else %}
     <script src="{% static 'helpdesk/vendor/timeline3/js/timeline.js' %}"></script>
   {% endif %}
+  {# Datatables #}
+  <script src="{% static 'helpdesk/vendor/datatables/js/dataTables.min.js' %}"></script>
+  <script src="{% static 'helpdesk/vendor/datatables/js/dataTables.bootstrap5.min.js' %}"></script>
+  <script src="{% static 'helpdesk/vendor/datatables/js/dataTables.buttons.min.js' %}"></script>
+  <script src="{% static 'helpdesk/vendor/datatables/js/buttons.colVis.min.js' %}"></script>
   <script>
     window.helpdesk_settings = {
       LANGUAGE_CODE: "{{ helpdesk_settings.LANGUAGE_CODE|default:'en-US' }}",
