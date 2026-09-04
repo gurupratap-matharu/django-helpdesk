@@ -1,7 +1,4 @@
-/*
-Bootstrap overrides
-*/
-@import "helpdesk-customize.css";
+/* Bootstrap overrides */
 
 /* Bootstrap 5 underlines links by default; restore Bootstrap 4 behaviour */
 a:not(.btn) {
@@ -42,24 +39,6 @@ a:not(.btn) {
   margin: 4px;
   max-width: 24%;
   min-height: 200px;
-}
-
-.filterBox {
-  display: none;
-}
-.filterBoxShow {
-  display: block;
-}
-
-.filterBox label {
-  clear: both;
-  display: block;
-}
-
-.filterBox .filterHelp {
-  color: #aaa;
-  font-size: 0.8em;
-  clear: both;
 }
 
 #searchtabs {
@@ -110,11 +89,6 @@ table.ticket-stats tbody tr {
   margin: 30px;
 }
 
-#footer {
-  border-top: 2px solid #aaaaaa;
-  margin-top: 20px;
-  padding: 10px 0;
-}
 #helpdesk-body {
   padding-top: 100px;
 }
@@ -197,7 +171,6 @@ table .tickettitle {
 .followup-item-inbound.list-group-item-action:focus {
   background-color: #faedcd;
 }
-
 
 .handle {
   cursor: grab;
