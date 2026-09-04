@@ -4,7 +4,7 @@
 {% with request|load_helpdesk_settings as helpdesk_settings %}
   {% with user|saved_queries as user_saved_queries_ %}
     <!DOCTYPE html>
-    <html lang="en">
+    <html lang="en" data-bs-theme="light">
       <head>
         <title>
           {% block helpdesk_title %}Helpdesk{% endblock helpdesk_title %} :: {% translate "Powered by django-helpdesk" %}
@@ -12,9 +12,8 @@
         {% include "helpdesk/base-head.html" %}
         {% block helpdesk_head %}
         {% endblock helpdesk_head %}
-        {% include "helpdesk/base_js.html" %}
       </head>
-      <body id="bg-dark">
+      <body>
         {% include "helpdesk/navigation-header.html" %}
         <div id="wrapper">
           {% include "helpdesk/navigation-sidebar.html" %}
@@ -34,7 +33,7 @@
           </div>
         </div>
         {% include "helpdesk/debug.html" %}
-        <script src="{% static "helpdesk/js/sb-admin.js" %}"></script>
+        {% include "helpdesk/base_js.html" %}
         {% block helpdesk_js %}
         {% endblock helpdesk_js %}
       </body>
