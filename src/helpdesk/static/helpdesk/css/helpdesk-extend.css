@@ -7,7 +7,6 @@ a:not(.btn) {
 
 /* Bootstrap 5 removed the breadcrumb background; restore the BS4 grey */
 .breadcrumb {
-  background-color: #e9ecef;
   padding: 0.75rem 1rem;
   border-radius: 0.25rem;
 }
