@@ -1,81 +1,25 @@
-.kanban-wrapper {
-  display: flex;
-  gap: 1rem;
-  overflow-x: auto;
-  padding-bottom: 1rem;
-  align-items: flex-start;
-}
-.kanban-column {
-  min-width: 260px;
-  flex: 1;
-  background: #2e3440;
-  border-radius: 6px;
-  padding: 0.75rem;
-}
-.kanban-column-header {
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.75rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid rgba(255,255,255,0.1);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
 .kanban-drop-zone {
-  min-height: 60px;
   transition: background 0.15s;
-  border-radius: 4px;
 }
 .kanban-drop-zone.drag-over {
-  background: rgba(255,255,255,0.07);
-  outline: 2px dashed rgba(255,255,255,0.3);
+  background: rgba(var(--bs-secondary-bg-rgb), 0.5);
+  outline: 2px dashed rgba(255, 255, 255, 0.3);
 }
 .kanban-card {
-  background: #3b4252;
-  border-radius: 5px;
-  padding: 0.6rem 0.75rem;
-  margin-bottom: 0.5rem;
   cursor: grab;
-  transition: box-shadow 0.15s, opacity 0.15s;
-  border-left: 3px solid transparent;
+  transition:
+    box-shadow 0.15s,
+    opacity 0.15s;
 }
-.kanban-card:active { cursor: grabbing; }
-.kanban-card.dragging { opacity: 0.45; }
-.kanban-card.priority-1 { border-left-color: #bf616a; }
-.kanban-card.priority-2 { border-left-color: #d08770; }
-.kanban-card.priority-3 { border-left-color: #ebcb8b; }
-.kanban-card.priority-4 { border-left-color: #a3be8c; }
-.kanban-card.priority-5 { border-left-color: #5e81ac; }
-.kanban-card-title {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #eceff4;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
+
+.kanban-card:active {
+  cursor: grabbing;
 }
-.kanban-card-meta {
-  font-size: 0.72rem;
-  color: #81a1c1;
-  margin-top: 0.3rem;
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+
+.kanban-card.dragging {
+  opacity: 0.45;
 }
-.kanban-card-meta .badge {
-  font-size: 0.68rem;
-}
-.kanban-badge {
-  background: rgba(255,255,255,0.12);
-  color: #d8dee9;
-  border-radius: 10px;
-  padding: 0.1rem 0.5rem;
-  font-size: 0.75rem;
-}
+
 .kanban-toast {
   position: fixed;
   bottom: 1.5rem;

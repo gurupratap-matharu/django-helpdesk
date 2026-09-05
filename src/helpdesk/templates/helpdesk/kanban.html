@@ -1,187 +1,230 @@
-{% extends "helpdesk/base.html" %}{% load i18n static %}
+{% extends "helpdesk/base.html" %}
 
-{% block helpdesk_title %}{% trans "Kanban Board" %}{% endblock %}
+{% load i18n static %}
+
+{% block helpdesk_title %}
+  {% translate "Kanban Board" %}
+{% endblock helpdesk_title %}
 
 {% block helpdesk_head %}
-<link rel="stylesheet" href="{% static 'helpdesk/kanban.css' %}">
-{% endblock %}
+  <link href="{% static 'helpdesk/css/kanban.css' %}" rel="stylesheet" />
+{% endblock helpdesk_head %}
 
 {% block helpdesk_breadcrumb %}
-<li class="breadcrumb-item active">{% trans "Kanban Board" %}</li>
-{% endblock %}
+  <li class="breadcrumb-item">
+    <a href="{% url 'helpdesk:home' %}">{% translate "Home" %}</a>
+  </li>
+  <li class="breadcrumb-item active">{% translate "Kanban Board" %}</li>
+{% endblock helpdesk_breadcrumb %}
 
 {% block helpdesk_body %}
-<div class="mb-3 p-3 rounded" style="background:#2e3440;">
-  <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-    <div>
-      <h4 class="text-white mb-1">{% trans "Kanban Board" %}</h4>
-      <p class="text-white-50 small mb-0">{% trans "Drag cards between columns to update their status." %}</p>
-    </div>
-    <div>
-      <form method="get" class="d-flex align-items-center gap-2 flex-wrap">
-        <div>
-          <label for="due-weeks-input" class="text-white fw-semibold d-block mb-1">
-            {% trans "Filter by due date" %}
-          </label>
-          <div class="d-flex align-items-center gap-2">
-            <span class="text-white small text-nowrap">{% trans "Due in next" %}</span>
-            <input id="due-weeks-input" type="number" name="due_weeks" min="1" max="52"
-                   value="{{ due_weeks|default:'' }}"
-                   class="form-control form-control-sm"
-                   style="width:70px;"
-                   placeholder="{{ default_due_weeks|default:'—' }}">
-            <span class="text-white small text-nowrap">{% trans "weeks" %}</span>
-            <div class="form-check form-check-inline mb-0 ms-1">
-              <input class="form-check-input" type="checkbox" id="exclude-overdue" name="exclude_overdue" value="1"{% if exclude_overdue %} checked{% endif %}>
-              <label class="form-check-label text-white text-nowrap" for="exclude-overdue">{% trans "Exclude overdue" %}</label>
-            </div>
-            <button type="submit" class="btn btn-sm btn-primary">{% trans "Apply" %}</button>
-            {% if due_weeks and due_weeks != default_due_weeks %}
-            <a href="{% url 'helpdesk:kanban' %}" class="btn btn-sm btn-outline-secondary">{% trans "Reset" %}</a>
-            {% endif %}
+  <div class="card border-0 mb-3">
+    <div class="card-body py-0">
+      <div class="d-flex">
+        <h1 class="fs-3">{% translate "Kanban Board" %}</h1>
+        <button class="btn btn-outline-secondary ms-auto"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseFilters"
+                aria-expanded="false"
+                aria-controls="collapseFilters">
+          <i class="fa fa-sliders me-2"></i>{% translate "Filters" %}
+        </button>
+      </div>
+      <p class="text-body-secondary mb-0">{% translate "Drag cards between columns to update their status." %}</p>
+      <div class="collapse mt-3" id="collapseFilters">
+        <div class="card card-body">
+          <div class="alert
+                      {% if due_weeks %}alert-primary{% else %}alert-warning{% endif %}
+                      alert-dismissible fade show"
+               role="alert">
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             {% if due_weeks %}
-            <a href="{% url 'helpdesk:kanban' %}?due_weeks=0" class="btn btn-sm btn-outline-secondary">{% trans "Show all" %}</a>
-            {% elif default_due_weeks %}
-            <a href="{% url 'helpdesk:kanban' %}" class="btn btn-sm btn-outline-secondary">{% trans "Reset to default" %}</a>
+              {% if exclude_overdue %}
+                {% blocktrans with w=due_weeks %}Showing only tickets due within the next <strong>{{ w }} week{{ w|pluralize }}</strong>. Overdue and tickets without a due date are hidden.{% endblocktrans %}
+              {% else %}
+                {% blocktrans with w=due_weeks %}Showing tickets due within the next <strong>{{ w }} week{{ w|pluralize }}</strong> plus any overdue open tickets. Tickets without a due date are hidden.{% endblocktrans %}
+              {% endif %}
+            {% else %}
+              {% translate "Showing all tickets. No date filter is active — this may be slow with large datasets." %}
             {% endif %}
           </div>
-          <p class="text-white-50 small mt-1 mb-0">
-            {% trans "Only shows tickets with a due date set between now and the chosen number of weeks from today." %}
-          </p>
-        </div>
-      </form>
-    </div>
-  </div>
-  <div class="alert mt-2 py-2 mb-0 small {% if due_weeks %}alert-info{% else %}alert-warning{% endif %}">
-    {% if due_weeks %}
-      {% if exclude_overdue %}
-        {% blocktrans with w=due_weeks %}Showing only tickets due within the next <strong>{{ w }} week{{ w|pluralize }}</strong>. Overdue and tickets without a due date are hidden.{% endblocktrans %}
-      {% else %}
-        {% blocktrans with w=due_weeks %}Showing tickets due within the next <strong>{{ w }} week{{ w|pluralize }}</strong> plus any overdue open tickets. Tickets without a due date are hidden.{% endblocktrans %}
-      {% endif %}
-    {% else %}
-      {% trans "Showing all tickets. No date filter is active — this may be slow with large datasets." %}
-    {% endif %}
-  </div>
-</div>
-
-<div class="kanban-wrapper" id="kanban-wrapper">
-  {% for col in columns %}
-  <div class="kanban-column">
-    <div class="kanban-column-header text-light">
-      <span>{{ col.label }}</span>
-      <span class="kanban-badge">{{ col.tickets|length }}</span>
-    </div>
-    <div class="kanban-drop-zone" data-status="{{ col.status }}">
-      {% for ticket in col.tickets %}
-      <div class="kanban-card priority-{{ ticket.priority }}"
-           draggable="true"
-           data-ticket-id="{{ ticket.id }}"
-           data-current-status="{{ ticket.status }}">
-        <a href="{% url 'helpdesk:view' ticket.id %}" class="kanban-card-title d-block text-decoration-none" title="{{ ticket.title }}">
-          #{{ ticket.id }} {{ ticket.title }}
-        </a>
-        <div class="kanban-card-meta">
-          <span>{{ ticket.queue.title }}</span>
-          {% if ticket.assigned_to %}
-          <span>&#8212; {{ ticket.assigned_to.get_username }}</span>
-          {% endif %}
-          {% if ticket.due_date %}
-          <span class="ms-auto text-nowrap {% if ticket.due_date < now %}text-danger fw-bold{% endif %}">&#128337; {{ ticket.due_date|date:"M j" }}</span>
-          {% endif %}
+          <div class="row">
+            <div class="col-12 col-md-6 col-lg-4">
+              <form method="get">
+                <label for="due-weeks-input" class="form-label">{% translate "Filter by due date" %}</label>
+                <div class="input-group">
+                  <span class="input-group-text">{% translate "Due in next" %}</span>
+                  <input id="due-weeks-input"
+                         type="number"
+                         name="due_weeks"
+                         min="1"
+                         max="52"
+                         value="{{ due_weeks|default:'' }}"
+                         class="form-control"
+                         placeholder="{{ default_due_weeks|default:'—' }}" />
+                  <span class="input-group-text">{% translate "weeks" %}</span>
+                </div>
+                <div class="form-text mb-3">
+                  {% translate "Only shows tickets with a due date set between now and the chosen number of weeks from today." %}
+                </div>
+                <div class="form-check mb-3">
+                  <input class="form-check-input"
+                         type="checkbox"
+                         id="exclude-overdue"
+                         name="exclude_overdue"
+                         value="1"
+                         {% if exclude_overdue %}
+                           checked{% endif %} />
+                  <label class="form-check-label" for="exclude-overdue">{% translate "Exclude overdue" %}</label>
+                </div>
+                <div class="d-flex">
+                  {% if due_weeks and due_weeks != default_due_weeks %}
+                    <a href="{% url 'helpdesk:kanban' %}" class="btn btn-outline-secondary me-2">{% translate "Reset" %}</a>
+                  {% endif %}
+                  {% if due_weeks %}
+                    <a href="{% url 'helpdesk:kanban' %}?due_weeks=0" class="btn btn-outline-secondary me-2">{% translate "Show all" %}</a>
+                  {% elif default_due_weeks %}
+                    <a href="{% url 'helpdesk:kanban' %}" class="btn btn-outline-secondary">{% translate "Reset to default" %}</a>
+                  {% endif %}
+                  <button type="submit" class="btn btn-primary ms-auto">{% translate "Apply" %}</button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       </div>
-      {% endfor %}
     </div>
   </div>
-  {% endfor %}
-</div>
-
-<div class="kanban-toast" id="kanban-toast" style="display:none;">
-  <div class="alert mb-0" id="kanban-toast-msg" role="alert"></div>
-</div>
-{% endblock %}
+  {# Kanban Grid #}
+  <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5" id="kanban-wrapper">
+    {% for col in columns %}
+      <div class="col kanban-column">
+        <div class="card h-100 border-0">
+          <div class="card-header d-flex justify-content-between bg-transparent border-0 pt-3">
+            <h5 class="fs-6 mb-0">{{ col.label }}</h5>
+            <span class="badge text-secondary-emphasis bg-secondary-subtle kanban-badge">{{ col.tickets|length }}</span>
+          </div>
+          <div class="card-body pb-0 kanban-drop-zone" data-status="{{ col.status }}">
+            {% for ticket in col.tickets %}
+              <div class="card card-body mb-2 kanban-card"
+                   draggable="true"
+                   data-ticket-id="{{ ticket.id }}"
+                   data-current-status="{{ ticket.status }}">
+                <div class="d-flex mb-2">
+                  {% with klass=ticket.get_priority_badge_class %}
+                    <span class="badge text-{{ klass }}-emphasis bg-{{ klass }}-subtle">{{ ticket.queue.title }}</span>
+                  {% endwith %}
+                </div>
+                <p class="card-title">
+                  <a class="me-1" href="{% url 'helpdesk:view' ticket.id %}">#{{ ticket.id }}</a>{{ ticket.title|truncatechars:50 }}
+                </p>
+                <div class="d-flex">
+                  {% if ticket.assigned_to %}
+                    <small class="text-body-secondary me-2">{{ ticket.assigned_to.get_username|title }}</small>
+                  {% endif %}
+                  {% if ticket.due_date %}
+                    <small class="text-body-secondary">· {{ ticket.due_date|date:"M j" }}</small>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  <div class="kanban-toast" id="kanban-toast" style="display:none;">
+    <div class="alert mb-0" id="kanban-toast-msg" role="alert"></div>
+  </div>
+{% endblock helpdesk_body %}
 
 {% block helpdesk_js %}
-<script>
-(function () {
-  const csrfToken = document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
-  let draggedCard = null;
+  <script>
+    (function() {
+      const csrfToken = document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
+      let draggedCard = null;
 
-  document.querySelectorAll('.kanban-card').forEach(card => {
-    card.addEventListener('dragstart', e => {
-      draggedCard = card;
-      card.classList.add('dragging');
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/plain', card.dataset.ticketId);
-    });
-    card.addEventListener('dragend', () => {
-      card.classList.remove('dragging');
-      draggedCard = null;
-    });
-  });
+      document.querySelectorAll('.kanban-card').forEach(card => {
+        card.addEventListener('dragstart', e => {
+          draggedCard = card;
+          card.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', card.dataset.ticketId);
+        });
+        card.addEventListener('dragend', () => {
+          card.classList.remove('dragging');
+          draggedCard = null;
+        });
+      });
 
-  document.querySelectorAll('.kanban-drop-zone').forEach(zone => {
-    zone.addEventListener('dragover', e => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      zone.classList.add('drag-over');
-    });
-    zone.addEventListener('dragleave', e => {
-      if (!zone.contains(e.relatedTarget)) zone.classList.remove('drag-over');
-    });
-    zone.addEventListener('drop', e => {
-      e.preventDefault();
-      zone.classList.remove('drag-over');
-      if (!draggedCard) return;
-      const newStatus = parseInt(zone.dataset.status);
-      const ticketId = draggedCard.dataset.ticketId;
-      const oldStatus = parseInt(draggedCard.dataset.currentStatus);
-      if (newStatus === oldStatus) return;
+      document.querySelectorAll('.kanban-drop-zone').forEach(zone => {
+        zone.addEventListener('dragover', e => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          zone.classList.add('drag-over');
+        });
+        zone.addEventListener('dragleave', e => {
+          if (!zone.contains(e.relatedTarget)) zone.classList.remove('drag-over');
+        });
+        zone.addEventListener('drop', e => {
+          e.preventDefault();
+          zone.classList.remove('drag-over');
+          if (!draggedCard) return;
 
-      zone.appendChild(draggedCard);
-      draggedCard.dataset.currentStatus = newStatus;
+          const oldStatus = parseInt(draggedCard.dataset.currentStatus);
+          const newStatus = parseInt(zone.dataset.status);
+          const ticketId = draggedCard.dataset.ticketId;
 
-      updateColumnCounts();
+          if (newStatus === oldStatus) return;
 
-      fetch(`{% url 'helpdesk:kanban_update' 0 %}`.replace('/0/', `/${ticketId}/`), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': csrfToken,
-        },
-        body: JSON.stringify({ status: newStatus }),
-      })
-        .then(r => r.json())
-        .then(data => {
-          if (data.status === 'ok') {
-            showToast('{% trans "Status updated." %}', 'success');
-          } else {
-            showToast(data.error || '{% trans "Update failed." %}', 'danger');
-          }
-        })
-        .catch(() => showToast('{% trans "Network error." %}', 'danger'));
-    });
-  });
+          zone.appendChild(draggedCard);
+          draggedCard.dataset.currentStatus = newStatus;
 
-  function updateColumnCounts() {
-    document.querySelectorAll('.kanban-column').forEach(col => {
-      const count = col.querySelectorAll('.kanban-card').length;
-      col.querySelector('.kanban-badge').textContent = count;
-    });
-  }
+          updateColumnCounts();
 
-  let toastTimer;
-  function showToast(msg, type) {
-    const toast = document.getElementById('kanban-toast');
-    const msgEl = document.getElementById('kanban-toast-msg');
-    msgEl.className = `alert alert-${type} mb-0`;
-    msgEl.textContent = msg;
-    toast.style.display = 'block';
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => { toast.style.display = 'none'; }, 2500);
-  }
-})();
+          fetch(`{% url 'helpdesk:kanban_update' 0 %}`.replace('/0/', `/${ticketId}/`), {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+              },
+              body: JSON.stringify({
+                status: newStatus
+              }),
+            })
+            .then(r => r.json())
+            .then(data => {
+              if (data.status === 'ok') {
+                showToast('{% translate "Status updated." %}', 'success');
+              } else {
+                showToast(data.error || '{% translate "Update failed." %}', 'danger');
+              }
+            })
+            .catch(() => showToast('{% translate "Network error." %}', 'danger'));
+        });
+      });
 
-</script>
-{% endblock %}
+      function updateColumnCounts() {
+        document.querySelectorAll('.kanban-column').forEach(col => {
+          const count = col.querySelectorAll('.kanban-card').length;
+          col.querySelector('.kanban-badge').textContent = count;
+        });
+      }
+
+      let toastTimer;
+
+      function showToast(msg, type) {
+        const toast = document.getElementById('kanban-toast');
+        const msgEl = document.getElementById('kanban-toast-msg');
+        msgEl.className = `alert alert-${type} mb-0`;
+        msgEl.textContent = msg;
+        toast.style.display = 'block';
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          toast.style.display = 'none';
+        }, 2500);
+      }
+    })();
+  </script>
+{% endblock helpdesk_js %}
