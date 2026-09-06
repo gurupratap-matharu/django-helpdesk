@@ -120,7 +120,6 @@ HELPDESK_DEFAULT_SETTINGS = {
 }
 
 # Should the public web portal be enabled?
-HELPDESK_PUBLIC_ENABLED = os.environ.get("HELPDESK_PUBLIC_ENABLED", "True") == "True"
 HELPDESK_VIEW_A_TICKET_PUBLIC = (
     os.environ.get("HELPDESK_VIEW_A_TICKET_PUBLIC", "True") == "True"
 )
@@ -145,7 +144,7 @@ LOGIN_REDIRECT_URL = "helpdesk:home"
 
 
 DATABASES = {
-    # Setup postgress db with postgres as host and db name and read password from env var
+    # Setup postgresql db with postgres as host and db name and read password from env var
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": os.environ.get("POSTGRES_DB", "postgres"),

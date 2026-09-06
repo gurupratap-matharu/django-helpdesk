@@ -167,7 +167,6 @@ Public Portal Settings
    :align: left
    :widths: auto
 
-   ``HELPDESK_PUBLIC_ENABLED``, ``True``, "Enable public web portal"
    ``HELPDESK_VIEW_A_TICKET_PUBLIC``, ``True``, "Allow public ticket viewing"
    ``HELPDESK_SUBMIT_A_TICKET_PUBLIC``, ``True``, "Allow public ticket submission"
    ``HELPDESK_REDIRECT_TO_LOGIN_BY_DEFAULT``, ``False``, "Redirect to login instead of public portal"
@@ -215,7 +214,7 @@ S3 base attachment support
 
 You will need to use the standalone-extras image for S3 support.
 
-Working from the previous SES example we add the following to `local_settings`:
+Working from the previous SES example we add the following to ``local_settings``:
 
 .. code-block:: python
 
