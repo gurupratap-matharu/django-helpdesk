@@ -1,9 +1,11 @@
 {% load i18n %}
-<!-- Sticky Footer -->
-<footer class="sticky-footer">
-    <div class="container my-auto">
-        <div class="copyright text-center my-auto">
-          <span>Powered by {% trans "<a href='https://github.com/django-helpdesk/django-helpdesk'>django-helpdesk</a>." %}</span>
-        </div>
-    </div>
+
+<footer class="pt-3 mt-4">
+  <p class="text-center text-body-secondary mb-0">
+    <small>
+      {% blocktranslate %}
+      Powered by <a href='https://github.com/django-helpdesk/django-helpdesk' class="ms-2">django-helpdesk</a>
+      {% endblocktranslate %}
+    </small>
+  </p>
 </footer>

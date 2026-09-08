@@ -1,16 +1,14 @@
-{% load i18n %}
-{% load saved_queries %}
-{% load load_helpdesk_settings %}
-{% load static %}
+{% load i18n static saved_queries load_helpdesk_settings %}
 
 {% with request|load_helpdesk_settings as helpdesk_settings %}
   {% with user|saved_queries as user_saved_queries_ %}
-
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="Helpdesk system for ticket based support" />
     <meta name="author" content="Django Helpdesk Team" />
+    {# Theme switcher: Let it be in the head section #}
+    <script src="{% static 'helpdesk/js/color-modes.js' %}"></script>
     {# Bootstrap Core CSS #}
     {% if helpdesk_settings.HELPDESK_USE_CDN %}
       <link rel="stylesheet"
@@ -20,30 +18,23 @@
     {% else %}
       <link href="{% static 'helpdesk/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" />
     {% endif %}
-
+    {# Jquery UI CSS #}
+    <link href="{% static 'helpdesk/vendor/jquery-ui/jquery-ui.min.css' %}" rel="stylesheet" />
     {# Font Awesome #}
     <link href="{% static 'helpdesk/vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css" />
-
-    {# DataTables CSS #}
-    <link href="{% static 'helpdesk/vendor/datatables/css/dataTables.bootstrap5.css' %}" rel="stylesheet" />
-    <link href="{% static 'helpdesk/vendor/datatables/css/buttons.dataTables.css' %}" rel="stylesheet" />
-
     {# MetisMenu CSS #}
     <link href="{% static 'helpdesk/vendor/metisMenu/metisMenu.min.css' %}" rel="stylesheet" />
-
     {# Morris Charts CSS #}
     {% if helpdesk_settings.HELPDESK_USE_CDN %}
       <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css" />
     {% else %}
       <link href="{% static 'helpdesk/vendor/morrisjs/morris.css' %}" rel="stylesheet" />
     {% endif %}
-
     {# Custom CSS #}
     <link href="{% static 'helpdesk/css/sb-admin.css' %}" rel="stylesheet" />
-    <link rel='stylesheet' href='{% static "helpdesk/helpdesk-extend.css" %}' type='text/css'  media="screen" />
-
+    <link href='{% static "helpdesk/css/helpdesk-extend.css" %}' rel="stylesheet" media="screen" />
+    {# RSS #}
     {% if user.id %}
-      {# RSS #}
       <link rel="alternate"
             href="{% url 'helpdesk:rss_user' user.get_username %}"
             type="application/rss+xml"

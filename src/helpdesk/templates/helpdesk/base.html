@@ -12,9 +12,8 @@
         {% include "helpdesk/base-head.html" %}
         {% block helpdesk_head %}
         {% endblock helpdesk_head %}
-        {% include "helpdesk/base_js.html" %}
       </head>
-      <body id="bg-dark">
+      <body>
         {% block body %}
           {% block header %}
             {% include "helpdesk/navigation-header.html" %}
@@ -25,9 +24,9 @@
             {% endblock sidebar %}
             <div id="content-wrapper">
               {% include "helpdesk/messages.html" %}
-              <div class="container-fluid">
+              <div class="container-fluid min-vh-100">
                 <nav aria-label="breadcrumb">
-                  <ol class="breadcrumb bg-transparent">
+                  <ol class="breadcrumb">
                     {% block helpdesk_breadcrumb %}
                     {% endblock helpdesk_breadcrumb %}
                   </ol>
@@ -42,7 +41,7 @@
           </div>
         {% endblock body %}
         {% include "helpdesk/debug.html" %}
-        <script src="{% static "helpdesk/js/sb-admin.js" %}"></script>
+        {% include "helpdesk/base_js.html" %}
         {% block helpdesk_js %}
         {% endblock helpdesk_js %}
       </body>

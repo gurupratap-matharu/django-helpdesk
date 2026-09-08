@@ -1,6 +1,4 @@
-/*
-Bootstrap overrides
-*/
+/* Bootstrap overrides */
 @import "helpdesk-customize.css";
 
 /* Bootstrap 5 underlines links by default; restore Bootstrap 4 behaviour */
@@ -10,7 +8,6 @@ a:not(.btn) {
 
 /* Bootstrap 5 removed the breadcrumb background; restore the BS4 grey */
 .breadcrumb {
-  background-color: #e9ecef;
   padding: 0.75rem 1rem;
   border-radius: 0.25rem;
 }
@@ -19,6 +16,7 @@ a:not(.btn) {
   position: relative;
   overflow: hidden;
 }
+
 .btn-file input[type="file"] {
   position: absolute;
   top: 0;
@@ -35,55 +33,6 @@ a:not(.btn) {
   display: block;
 }
 
-.thumbnail.filterBox {
-  float: left;
-  border: solid #ccc 1px;
-  padding: 10px;
-  margin: 4px;
-  max-width: 24%;
-  min-height: 200px;
-}
-
-.filterBox {
-  display: none;
-}
-.filterBoxShow {
-  display: block;
-}
-
-.filterBox label {
-  clear: both;
-  display: block;
-}
-
-.filterBox .filterHelp {
-  color: #aaa;
-  font-size: 0.8em;
-  clear: both;
-}
-
-#searchtabs {
-  margin-bottom: 20px;
-}
-
-.row_tablehead,
-table.table caption {
-  background-color: #dbd5d9;
-}
-table.table caption {
-  padding-left: 2em;
-  line-height: 2em;
-  font-weight: bold;
-}
-table.ticket-stats caption {
-  color: #fbff00;
-  font-style: italic;
-}
-table.ticket-stats tbody th,
-table.ticket-stats tbody tr {
-  padding-left: 20px;
-}
-
 .errorlist {
   list-style: none;
   padding: 0;
@@ -96,28 +45,15 @@ table.ticket-stats tbody tr {
   border-color: #b94a48;
 }
 
-#helpdesk-nav-collapse #searchform {
-  padding-top: 0;
-}
-#ticket-description {
-  background-color: #fcf8e3;
-}
 .followup.well {
   background-color: #f4f5ff;
 }
+
 .followup {
   padding: 20px;
   margin: 30px;
 }
 
-#footer {
-  border-top: 2px solid #aaaaaa;
-  margin-top: 20px;
-  padding: 10px 0;
-}
-#helpdesk-body {
-  padding-top: 100px;
-}
 img.brand {
   padding-right: 30px;
 }
@@ -197,7 +133,6 @@ table .tickettitle {
 .followup-item-inbound.list-group-item-action:focus {
   background-color: #faedcd;
 }
-
 
 .handle {
   cursor: grab;

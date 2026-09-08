@@ -1,0 +1,29 @@
+.kanban-drop-zone {
+  transition: background 0.15s;
+}
+.kanban-drop-zone.drag-over {
+  background: rgba(var(--bs-secondary-bg-rgb), 0.5);
+  outline: 2px dashed rgba(255, 255, 255, 0.3);
+}
+.kanban-card {
+  cursor: grab;
+  transition:
+    box-shadow 0.15s,
+    opacity 0.15s;
+}
+
+.kanban-card:active {
+  cursor: grabbing;
+}
+
+.kanban-card.dragging {
+  opacity: 0.45;
+}
+
+.kanban-toast {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9999;
+  min-width: 220px;
+}
