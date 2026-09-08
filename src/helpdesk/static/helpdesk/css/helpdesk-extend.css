@@ -1,4 +1,5 @@
 /* Bootstrap overrides */
+@import "helpdesk-customize.css";
 
 /* Bootstrap 5 underlines links by default; restore Bootstrap 4 behaviour */
 a:not(.btn) {
@@ -15,6 +16,7 @@ a:not(.btn) {
   position: relative;
   overflow: hidden;
 }
+
 .btn-file input[type="file"] {
   position: absolute;
   top: 0;
@@ -31,37 +33,6 @@ a:not(.btn) {
   display: block;
 }
 
-.thumbnail.filterBox {
-  float: left;
-  border: solid #ccc 1px;
-  padding: 10px;
-  margin: 4px;
-  max-width: 24%;
-  min-height: 200px;
-}
-
-#searchtabs {
-  margin-bottom: 20px;
-}
-
-.row_tablehead,
-table.table caption {
-  background-color: #dbd5d9;
-}
-table.table caption {
-  padding-left: 2em;
-  line-height: 2em;
-  font-weight: bold;
-}
-table.ticket-stats caption {
-  color: #fbff00;
-  font-style: italic;
-}
-table.ticket-stats tbody th,
-table.ticket-stats tbody tr {
-  padding-left: 20px;
-}
-
 .errorlist {
   list-style: none;
   padding: 0;
@@ -74,23 +45,15 @@ table.ticket-stats tbody tr {
   border-color: #b94a48;
 }
 
-#helpdesk-nav-collapse #searchform {
-  padding-top: 0;
-}
-#ticket-description {
-  background-color: #fcf8e3;
-}
 .followup.well {
   background-color: #f4f5ff;
 }
+
 .followup {
   padding: 20px;
   margin: 30px;
 }
 
-#helpdesk-body {
-  padding-top: 100px;
-}
 img.brand {
   padding-right: 30px;
 }
