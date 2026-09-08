@@ -80,12 +80,15 @@
                 </div>
                 <div class="d-flex">
                   {% if due_weeks and due_weeks != default_due_weeks %}
-                    <a href="{% url 'helpdesk:kanban' %}" class="btn btn-outline-secondary me-2">{% translate "Reset" %}</a>
+                    <a href="{% url 'helpdesk:kanban' %}"
+                       class="btn btn-outline-secondary me-2">{% translate "Reset" %}</a>
                   {% endif %}
                   {% if due_weeks %}
-                    <a href="{% url 'helpdesk:kanban' %}?due_weeks=0" class="btn btn-outline-secondary me-2">{% translate "Show all" %}</a>
+                    <a href="{% url 'helpdesk:kanban' %}?due_weeks=0"
+                       class="btn btn-outline-secondary me-2">{% translate "Show all" %}</a>
                   {% elif default_due_weeks %}
-                    <a href="{% url 'helpdesk:kanban' %}" class="btn btn-outline-secondary">{% translate "Reset to default" %}</a>
+                    <a href="{% url 'helpdesk:kanban' %}"
+                       class="btn btn-outline-secondary">{% translate "Reset to default" %}</a>
                   {% endif %}
                   <button type="submit" class="btn btn-primary ms-auto">{% translate "Apply" %}</button>
                 </div>
@@ -97,7 +100,7 @@
     </div>
   </div>
   {# Kanban Grid #}
-  <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5" id="kanban-wrapper">
+  <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-0" id="kanban-wrapper">
     {% for col in columns %}
       <div class="col kanban-column">
         <div class="card h-100 border-0">
@@ -117,7 +120,8 @@
                   {% endwith %}
                 </div>
                 <p class="card-title">
-                  <a class="me-1" href="{% url 'helpdesk:view' ticket.id %}">#{{ ticket.id }}</a>{{ ticket.title|truncatechars:50 }}
+                  <a class="me-1"
+                     href="{% url 'helpdesk:view' ticket.id %}">#{{ ticket.id }}</a>{{ ticket.title|truncatechars:50 }}
                 </p>
                 <div class="d-flex">
                   {% if ticket.assigned_to %}

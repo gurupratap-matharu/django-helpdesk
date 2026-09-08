@@ -5,7 +5,11 @@
   <div class="container-fluid">
     <div class="d-flex align-items-center">
       <a class="navbar-brand" href="{% url 'helpdesk:home' %}">
-        <img src="{% static 'helpdesk/img/icon.svg' %}" alt="Logo" width="30" height="24" class="d-inline-block align-text-top" />
+        <img src="{% static 'helpdesk/img/icon.svg' %}"
+             alt="Logo"
+             width="30"
+             height="24"
+             class="d-inline-block align-text-top" />
       {% translate "Helpdesk" %}</a>
       <button class="btn btn-sm" id="sidebarToggle">
         <i class="fa-solid fa-bars"></i>
@@ -13,7 +17,11 @@
     </div>
     {% if helpdesk_settings.HELPDESK_NAVIGATION_ENABLED and user.is_authenticated or user|is_helpdesk_staff %}
       {# Navbar Search #}
-      <form class="d-none d-md-inline-block" id="searchform" method='get' action="{% url 'helpdesk:list' %}" style="width:600px;">
+      <form class="d-none d-md-inline-block"
+            id="searchform"
+            method='get'
+            action="{% url 'helpdesk:list' %}"
+            style="width:600px">
         <div class="input-group">
           <input type="text"
                  class="form-control"
@@ -37,7 +45,11 @@
     <div class="d-flex align-items-center">
       {# Theme switcher #}
       <div class="dropdown me-3 me-lg-2">
-        <button class="btn nav-link dropdown-toggle" type="button" id="bd-theme" data-bs-toggle="dropdown" aria-expanded="false">
+        <button class="btn nav-link dropdown-toggle"
+                type="button"
+                id="bd-theme"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
           <svg class="bi theme-icon-active" width="20" height="20" fill="currentColor" aria-hidden="true">
             <use xlink:href="{% static 'helpdesk/icons/icons.svg' %}#sun-fill" />
           </svg>
@@ -86,27 +98,27 @@
             </a>
             <div class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="userDropdown">
               <a class="dropdown-item rounded" href="{% url 'helpdesk:user_settings' %}">
-                <i class="fas fa-fw fa-user-cog me-2"></i>{% trans "User Settings" %}
+                <i class="fas fa-fw fa-user-cog me-2"></i>{% translate "User Settings" %}
               </a>
               <a class="dropdown-item rounded" href="{% url 'helpdesk:rss_index' %}">
-                <i class="fa-solid fa-fw fa-rss me-2"></i>{% trans "RSS Feeds" %}
+                <i class="fa-solid fa-fw fa-rss me-2"></i>{% translate "RSS Feeds" %}
               </a>
               {% if user.is_authenticated and user.has_usable_password %}
                 <a class="dropdown-item rounded" href="{% url 'helpdesk:password_change' %}">
-                  <i class="fas fa-fw fa-user-secret me-2"></i>{% trans "Change password" %}
+                  <i class="fas fa-fw fa-user-secret me-2"></i>{% translate "Change password" %}
                 </a>
               {% endif %}
               <div class="dropdown-divider"></div>
               {% if user.is_superuser %}
                 <a class="dropdown-item rounded" href="{% url 'helpdesk:system_settings' %}">
-                  <i class="fas fa-fw fa-cogs me-2"></i>{% trans "System Settings" %}
+                  <i class="fas fa-fw fa-cogs me-2"></i>{% translate "System Settings" %}
                 </a>
                 <div class="dropdown-divider"></div>
               {% endif %}
               <form action="{% url 'helpdesk:logout' %}" method="post">
                 {% csrf_token %}
                 <button type="submit" class="dropdown-item">
-                  <i class="fas fa-fw fa-sign-out-alt"></i>{% trans "Logout" %}
+                  <i class="fas fa-fw fa-sign-out-alt"></i>{% translate "Logout" %}
                 </button>
               </form>
             </div>
@@ -120,7 +132,7 @@
                  role="button"
                  aria-haspopup="true"
                  aria-expanded="false">
-                <i class="fas fa-user-circle fa-fw"></i> {% trans "Dashboard" %}
+                <i class="fas fa-user-circle fa-fw"></i> {% translate "Dashboard" %}
               </a>
             </li>
             <li class="nav-item dropdown no-arrow">
@@ -130,11 +142,11 @@
                  role="button"
                  aria-haspopup="true"
                  aria-expanded="false">
-                <i class="fas fa-user-circle fa-fw"></i> {% trans "Submit a Ticket" %}
+                <i class="fas fa-user-circle fa-fw"></i> {% translate "Submit a Ticket" %}
               </a>
             </li>
           {% endif %}
-          {% if not request.path == '/helpdesk/login/' or user.is_authenticated %}
+          {% if not request.path == "/helpdesk/login/" or user.is_authenticated %}
             <div class="nav-item">
               <div class="nav-link">{{ user.username }}</div>
             </div>
@@ -143,7 +155,7 @@
                 <form action="{% url 'helpdesk:logout' %}" method="post">
                   {% csrf_token %}
                   <button type="submit" class="btn btn-outline-secondary">
-                    <i class="fas fa-fw fa-sign-out-alt"></i> {% trans "Logout" %}
+                    <i class="fas fa-fw fa-sign-out-alt"></i> {% translate "Logout" %}
                   </button>
                 </form>
               {% else %}

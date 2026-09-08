@@ -4,7 +4,7 @@
 {% with request|load_helpdesk_settings as helpdesk_settings %}
   {% with user|saved_queries as user_saved_queries_ %}
     <!DOCTYPE html>
-    <html lang="en" data-bs-theme="light">
+    <html lang="en">
       <head>
         <title>
           {% block helpdesk_title %}Helpdesk{% endblock helpdesk_title %} :: {% translate "Powered by django-helpdesk" %}
@@ -24,7 +24,7 @@
             {% endblock sidebar %}
             <div id="content-wrapper">
               {% include "helpdesk/messages.html" %}
-              <div class="container-fluid">
+              <div class="container-fluid min-vh-100">
                 <nav aria-label="breadcrumb">
                   <ol class="breadcrumb">
                     {% block helpdesk_breadcrumb %}
